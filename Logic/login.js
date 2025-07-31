@@ -1,4 +1,4 @@
-import { User } from "./user";
+import { User } from "./classes/user";
 
 const form = document.querySelector("form");
 form.addEventListener("submit", (ev) => {
