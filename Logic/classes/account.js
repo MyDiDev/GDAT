@@ -5,25 +5,25 @@ export class Account{
         this.type = type;
     }
 
-    addAccount = () => {
+    addAccount() {
         if (!this.uid || !this.amount || !this.type)
             return;
         // add acount
     }
 
-    deleteAccount = (id) => {
+    deleteAccount(id) {
         if (!this.id)
             return;
         // delete account
     }
 
-    updateAccount = (id) => {
+    updateAccount(id) {
         if (!this.id || !this.uid || !this.amount || !this.type)
             return;
         // update account
     } 
 
-    get = () => {
+    get(){
         // query accounts
     }
 

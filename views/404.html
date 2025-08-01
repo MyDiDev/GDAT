@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login - GDAT</title>
+    <title>Home - GDAT</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -19,41 +19,43 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body class="text-white">
+    <header class="w-100 p-3 px-5 position-sticky top-0 shadow-sm">
+      <nav class="d-flex justify-content-center align-items-center">
+        <h2 class="navbar-brand m-0">
+          <a href="/" class="text-decoration-none text-white fw-bolder">GDAT</a>
+        </h2>
+      </nav>
+    </header>
+
     <main
       class="container-fluid d-flex justify-content-center align-items-center flex-column h-100 p-0 m-0"
     >
       <section
-        class="d-flex justify-content-center align-items-center"
-        id="main-home"
-        style="height: 100dvh"
+        class="d-flex justify-content-center align-items-center w-100"
+        id="home-section1"
       >
-        <div id="login-container" class="p-3 rounded">
-          <h1>Log In</h1>
-          <hr />
-          <form action="/login/auth" method="POST">
-            <div class="mb-3">
-              <label for="name" class="form-label">Enter your username:</label>
-              <input type="text" class="form-control" id="name" name="name" placeholder="your username here" />
-            </div>
-            <div class="mb-3">
-              <label for="password" class="form-label">Enter your password:</label>
-              <input type="password" class="form-control" id="password" name="password" placeholder="your password here" />
-              <span class="text-white" style="font-size: 12px;">Did you forget your password? <a href="#">Click here</a></span>
-            </div>
-            <div class="mb-3">
-                <button type="submit" class="btn btn-primary w-100">Login</button>
-            </div>
-          </form>
+        <div
+          class="d-flex align-items-center flex-column text-center px-5 w-75"
+        >
+          <p id="badge" class="px-2 p-1" style="border-radius: 50px">
+            Detect Suspicious Transactions Instantly. Protect Your Business from
+            Fraud.
+          </p>
+          <h1 class="fw-bolder fs-1">
+            404 Not Found
+          </h1>
+          <p class="w-75 fs-6">
+            Seems you wanted to go to an unknown point :(
+          </p>
+          <a href="/" class="btn btn-primary w-50 p-1 text-decoration-none">Go Back</a>
         </div>
       </section>
     </main>
 
     <footer>
-      <div
-        class="d-flex justify-content-center align-items-center gap-3 text-center p-3"
-      >
+      <div class="d-flex justify-content-center align-items-center gap-3 text-center p-3">
         <h2 class="navbar-brand m-0">GDAT</h2>
-        <p class="m-0">© - Copyright 2025</p>
+        <p class="m-0"> © - Copyright 2025</p>
       </div>
     </footer>
 
@@ -72,6 +74,6 @@
       integrity="sha384-7qAoOXltbVP82dhxHAUje59V5r2YsVfBafyUDxEdApLPmcdhBPg1DKg1ERo0BZlK"
       crossorigin="anonymous"
     ></script>
-    <script src="../Static/Logic/login.js"></script>
+    <script src="../Static/Logic/home.js"></script>
   </body>
 </html>

@@ -5,22 +5,22 @@ export class Transactions {
     this.accountId = accountId;
   }
 
-  addTransaction = () => {
+  addTransaction () {
     if (!this.description || !this.amount || !this.accountId) return;
     // add transaction
   };
 
-  deleteTransaction = (id) => {
+  deleteTransaction (id) {
     if (!this.id) return;
     // delete transaction
   };
 
-  updateTransaction = (id) => {
+  updateTransaction (id) {
     if (!this.id || !this.description || !this.amount || !this.accountId) return;
     // update transaction
   };
 
-  get = () => {
+  get () {
     // query transactions
   };
 }

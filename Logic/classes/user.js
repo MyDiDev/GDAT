@@ -1,33 +1,34 @@
 export class User{
-    constructor(username, password, email){
+    constructor(username, secondName, password, email){
         this.name = username;
+        this.secondName = secondName;
         this.password = password;
         this.email = email;
     }
 
-    addUser = () => {
-        if (!this.name || !this.password || !this.email)
+    addUser() {
+        if (!this.name || !this.secondName || !this.password || !this.email)
             return;
         // add user
     }
 
-    deleteUser = (id) => {
+    deleteUser (id) {
         if (!this.id)
             return;
         // delete user
     }
 
-    updateUser = (id) => {
+    updateUser (id) {
         if (!this.id || !this.name || !this.password || !this.email)
             return;
         // update user
     }
 
-    get = () => {
+    get () {
         // query users
     }
 
-    auth = () => {
+    auth () {
         if (!(this.name || this.email) || !this.password)
             return;
         // authenticate user
