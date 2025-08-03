@@ -1,36 +1,54 @@
-export class User{
-    constructor(username, secondName, password, email){
-        this.name = username;
-        this.secondName = secondName;
-        this.password = password;
-        this.email = email;
-    }
+import { addNewUser, deleteUser, updateUser, getUsers } from "../../DB/connection.js";
+import bcrypt from "bcrypt";
 
-    addUser() {
-        if (!this.name || !this.secondName || !this.password || !this.email)
-            return;
-        // add user
-    }
+function encryptPassword(password) {
+  let pwdHash = null;
+  bcrypt.genSalt(15, (err, salt) => {
+    if (err) throw err;
+    bcrypt.hash(password, salt, (err, hash) => {
+      if (err) throw err;
+      pwdHash = hash;
+    });
+  });
+  return pwdHash;
+}
 
-    deleteUser (id) {
-        if (!this.id)
-            return;
-        // delete user
-    }
+export class User {
+  constructor(username, email, password, role) {
+    this.name = username;
+    this.password = bcrypt.hashSync(password, 15);
+    this.email = email;
+    this.role = role != "user" ? role : "user";
+  }
 
-    updateUser (id) {
-        if (!this.id || !this.name || !this.password || !this.email)
-            return;
-        // update user
+  addUser() {
+    console.log(this.name, this.password, this.email, this.role);
+    if (!this.name || !this.password || !this.email || !this.role) {
+      console.error("Parameters missing in user class to create it");
+      return;
     }
+    addNewUser(this.name, this.email, this.password, this.role);
+  }
 
-    get () {
-        // query users
+  deleteUser(id) {
+    if (!id){
+        console.error("ID missing");
+        return;   
     }
+    deleteUser(id);
+  }
 
-    auth () {
-        if (!(this.name || this.email) || !this.password)
-            return;
-        // authenticate user
-    }
+  updateUser(id) {
+    if (!id || !this.name || !this.password || !this.email) return;
+    // update user
+  }
+
+  get() {
+    return getUsers();
+  }
+
+  auth() {
+    if (!(this.name || this.email) || !this.password) return;
+    // authenticate user
+  }
 }
