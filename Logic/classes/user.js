@@ -1,4 +1,10 @@
-import { addNewUser, deleteUser, updateUser, getUsers } from "../../DB/connection.js";
+import {
+  addNewUser,
+  deleteUser,
+  updateUser,
+  getUsers,
+  authtenticateUser,
+} from "../../DB/connection.js";
 import bcrypt from "bcrypt";
 
 function encryptPassword(password) {
@@ -31,16 +37,16 @@ export class User {
   }
 
   deleteUser(id) {
-    if (!id){
-        console.error("ID missing");
-        return;   
+    if (!id) {
+      console.error("ID missing");
+      return;
     }
     deleteUser(id);
   }
 
   updateUser(id) {
     if (!id || !this.name || !this.password || !this.email) return;
-    // update user
+    updateUser(id, this.name, this.email, this.password, this.role);
   }
 
   get() {
@@ -49,6 +55,6 @@ export class User {
 
   auth() {
     if (!(this.name || this.email) || !this.password) return;
-    // authenticate user
+    authtenticateUser(this.name, this.email, this.password);
   }
 }

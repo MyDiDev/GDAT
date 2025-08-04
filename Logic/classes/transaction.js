@@ -1,26 +1,31 @@
+import { getTransactions, addNewTransaction, deleteTransaction, updateTransaction } from "../../DB/connection.js";
+
 export class Transactions {
-  constructor(description, amount, accountId) {
+  constructor(description, amount, accountId, state) {
     this.description = description;
     this.amount = amount;
     this.accountId = accountId;
+    this.state = state ?? "On Queque";
   }
 
-  addTransaction () {
-    if (!this.description || !this.amount || !this.accountId) return;
-    // add transaction
-  };
+  addTransaction() {
+    if (!this.description || !this.amount || !this.accountId || !this.state)
+      return;
+    addNewTransaction(this.description, this.amount, this.state);
+  }
 
-  deleteTransaction (id) {
+  deleteTransaction(id) {
     if (!this.id) return;
-    // delete transaction
-  };
+    deleteTransaction(id);
+  }
 
-  updateTransaction (id) {
-    if (!this.id || !this.description || !this.amount || !this.accountId) return;
-    // update transaction
-  };
+  updateTransaction(id) {
+    if (!this.id || !this.description || !this.amount|| !this.state)
+      return;
+    updateTransaction(id, this.description, this.amount, this.state);
+  }
 
-  get () {
-    // query transactions
-  };
+  get() {
+    return getTransactions();
+  }
 }
