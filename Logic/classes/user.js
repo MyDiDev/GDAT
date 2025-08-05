@@ -4,6 +4,7 @@ import {
   updateUser,
   getUsers,
   authtenticateUser,
+  getUserId
 } from "../../DB/connection.js";
 import bcrypt from "bcrypt";
 
@@ -24,7 +25,7 @@ export class User {
     this.name = username;
     this.password = bcrypt.hashSync(password, 15);
     this.email = email;
-    this.role = role != "user" ? role : "user";
+    this.role = role ?? "user";
   }
 
   addUser() {
@@ -56,5 +57,14 @@ export class User {
   auth() {
     if (!(this.name || this.email) || !this.password) return;
     authtenticateUser(this.name, this.email, this.password);
+  }
+
+  generatePayload(uid){
+    const userObject = {
+      id: uid ?? getUserId(this.name, this.email, this.password),
+      name: this.name,
+      role: this.role
+    }
+    return userObject;
   }
 }
