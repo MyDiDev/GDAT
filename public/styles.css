@@ -12,8 +12,6 @@
   --secondary-background-color: rgba(27, 27, 27);
 }
 
-
-
 body {
   background-color: var(--primary-background-color);
 }
@@ -146,6 +144,23 @@ img {
 
 .right::after {
   left: -12px;
+}
+
+#sideBar {
+  min-height: 100dvh;
+  height: 100%;
+  background-color: var(--secondary-background-color);
+  width: 200px;
+}
+
+#smSideBar {
+  display: none;
+  width: 150px;
+  background-color: var(--secondary-background-color);
+}
+
+#dashLink {
+  background-color: var(--primary-background-color);
 }
 
 @media screen and (max-width: 600px) {

@@ -1,4 +1,9 @@
-import { getTransactions, addNewTransaction, deleteTransaction, updateTransaction } from "../../DB/connection.js";
+import {
+  getTransactions,
+  addNewTransaction,
+  deleteTransaction,
+  updateTransaction,
+} from "../../db/connection.js";
 
 export class Transactions {
   constructor(description, amount, accountId, state) {
@@ -20,12 +25,11 @@ export class Transactions {
   }
 
   updateTransaction(id) {
-    if (!this.id || !this.description || !this.amount|| !this.state)
-      return;
+    if (!this.id || !this.description || !this.amount || !this.state) return;
     updateTransaction(id, this.description, this.amount, this.state);
   }
 
-  get() {
-    return getTransactions();
+  async get() {
+    return await getTransactions();
   }
 }

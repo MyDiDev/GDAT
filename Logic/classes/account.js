@@ -3,18 +3,18 @@ import {
   addNewAccount,
   deleteAccount,
   updateAccount,
-} from "../../DB/connection.js";
+} from "../../db/connection.js";
 
 export class Account {
-  constructor(uid, amount, type) {
+  constructor(uid, balance, type) {
     this.uid = uid;
-    this.amount = amount;
+    this.balance = balance;
     this.type = type;
   }
 
   addAccount() {
-    if (!this.uid || !this.amount || !this.type) return;
-    addNewAccount(this.uid, this.amount, this.type);
+    if (!this.uid || !this.balance || !this.type) return;
+    addNewAccount(this.uid, this.balance, this.type);
   }
 
   deleteAccount(id) {
@@ -23,11 +23,11 @@ export class Account {
   }
 
   updateAccount(id) {
-    if (!this.id || !this.uid || !this.amount || !this.type) return;
-    updateAccount(id, this.uid, this.amount, this.type);
+    if (!this.id || !this.uid || !this.balance || !this.type) return;
+    updateAccount(id, this.uid, this.balance, this.type);
   }
 
-  get() {
-    return getAccounts();
+  async get() {
+    return await getAccounts();
   }
 }

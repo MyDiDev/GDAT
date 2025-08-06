@@ -4,8 +4,9 @@ import {
   updateUser,
   getUsers,
   authtenticateUser,
-  getUserId
-} from "../../DB/connection.js";
+  getUserId,
+  addNewTransaction
+} from "../../db/connection.js";
 import bcrypt from "bcrypt";
 
 function encryptPassword(password) {
@@ -50,13 +51,17 @@ export class User {
     updateUser(id, this.name, this.email, this.password, this.role);
   }
 
-  get() {
-    return getUsers();
+  async get() {
+    return await getUsers();
   }
 
   auth() {
     if (!(this.name || this.email) || !this.password) return;
     authtenticateUser(this.name, this.email, this.password);
+  }
+
+  async getId(){
+    return await getUserId(this.name, this.email)
   }
 
   generatePayload(uid){
