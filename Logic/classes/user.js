@@ -24,7 +24,7 @@ function encryptPassword(password) {
 export class User {
   constructor(username, email, password, role) {
     this.name = username;
-    this.password = bcrypt.hashSync(password, 15);
+    // this.password = bcrypt.hashSync(password, 15) ? password : null;
     this.email = email;
     this.role = role ?? "user";
   }

@@ -2,8 +2,7 @@ import { HOST, PASSWORD, USER, DATABASE, PORT } from "./secret.js";
 import mysql from "mysql";
 
 let conn = null;
-
-async function connectToDb() {
+export async function connectToDb() {
   try {
     conn = mysql.createConnection({
       host: HOST,
