@@ -55,9 +55,9 @@ export class User {
     return await getUsers();
   }
 
-  auth() {
+  async auth() {
     if (!(this.name || this.email) || !this.password) return;
-    authtenticateUser(this.name, this.email, this.password);
+    return await authtenticateUser(this.name, this.email, this.password);
   }
 
   async getId(){

@@ -508,7 +508,7 @@
             id="accountsTable"
             class="table table-dark table-hover table-striped"
           >
-            <thead>
+            <thead id="theadContent">
               <tr>
                 <th>#</th>
                 <th>User ID</th>
@@ -516,14 +516,7 @@
                 <th>Account Type</th>
               </tr>
             </thead>
-            <tbody id="tbodyContent">
-              <tr>
-                <td>1</td>
-                <td>Transaction to Prove</td>
-                <td>5000.0 $USD</td>
-                <td>On Queque</td>
-              </tr>
-            </tbody>
+            <tbody id="tbodyContent"></tbody>
           </table>
         </section>
       </main>
@@ -534,7 +527,6 @@
       integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
       crossorigin="anonymous"
     ></script>
-    <script type="module" src="../../Logic/classes/account.js"></script>
     <script>
       const $ = (el) => document.getElementById(el);
       const sidebar = $("sideBar");
@@ -555,7 +547,6 @@
       const errorModalTrigger = $("errorModalTrigger");
       const editBtn = $("editBtn");
       const updateForm = $("updateForm");
-      const account = new Account();
 
       $("accountsTable").addEventListener("click", (ev) => {
         try {
@@ -575,7 +566,6 @@
             updateForm.elements["balance"].value = rowData[2];
             $("selectedAccountType").value = rowData[3];
             $("selectedAccountType").textContent = rowData[3];
-
             return;
           }
           errorMsg.textContent = "Could not find valid identifier";
@@ -606,26 +596,67 @@
         }
       });
 
-      window.addEventListener("load", (ev) => {
+      window.addEventListener("load", async (ev) => {
         checkSideBarResponsive();
-        let accountsRegistered = account.get();
-        let tableContent = ""
-        const tbody = $("tbodyContent");
+        try {
+          const APIURL = "http://localhost:3000/api/data?table=accounts";
+          const response = await fetch(APIURL, {
+            method: "GET",
+          });
 
-        accountsRegistered.forEach(rowDataPacket => {
-          tableContent += `
-          <tr>
-            <td>${rowDataPacket[0]}</td>
-            <td>${rowDataPacket[1]}</td>
-            <td>${rowDataPacket[2]}</td>
-            <td>${rowDataPacket[3]}</td>
-          </tr>
-          `;
-        });
-        tbody.innerHTML = tableContent;
-        datatable = new DataTable("#accountsTable", {
-          select: true,
-        });
+          if (!response.ok) {
+            errorMsg.textContent =
+              "Error while getting the data for the accounts registered, try again.";
+            errorModalTrigger.click();
+          }
+          const accountsRegistered = await response.json();
+          let tableHeadingContent = "";
+          let theadContent = $("theadContent");
+
+          let tableContent = "";
+          const tbody = $("tbodyContent");
+
+          if (!Object.keys(accountsRegistered?.result[0][0]).length) {
+            theadContent.innerHTML = `
+            <tr>
+              <th>#</th>
+              <th>User Email</th>
+              <th>Balance</th>
+              <th>Account Type</th>
+            </tr>
+            `;
+            accountsRegistered.result[0].forEach((rowDataPacket) => {
+              tableContent += `
+            <tr>
+              <td>${rowDataPacket[0]}</td>
+              <td>${rowDataPacket[1]}</td>
+              <td>${rowDataPacket[2]}</td>
+              <td>${rowDataPacket[3]}</td>
+            </tr>
+            `;
+            });
+          } else {
+            theadContent.innerHTML = `
+            <tr>
+              <th>#</th>
+            </tr>
+            `;
+            tableContent += `
+              <tr>
+                <td>No accounts registered</td>  
+              </tr>
+            `;
+          }
+          tbody.innerHTML = tableContent;
+          datatable = new DataTable("#accountsTable", {
+            select: true,
+          });
+        } catch (error) {
+          errorMsg.textContent =
+            "Error while getting the data for the accounts registered, try again.";
+          errorModalTrigger.click();
+          console.error(error.message);
+        }
       });
 
       window.addEventListener("resize", (ev) => {
