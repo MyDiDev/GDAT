@@ -5,71 +5,63 @@ import {
   getUsers,
   authtenticateUser,
   getUserId,
-  addNewTransaction
 } from "../../db/connection.js";
-import bcrypt from "bcrypt";
+import bcrypt, { hashSync } from "bcrypt";
 
-function encryptPassword(password) {
-  let pwdHash = null;
-  bcrypt.genSalt(15, (err, salt) => {
-    if (err) throw err;
-    bcrypt.hash(password, salt, (err, hash) => {
-      if (err) throw err;
-      pwdHash = hash;
-    });
-  });
-  return pwdHash;
-}
+// async function encryptPassword(password) {
+//   return new Promise((resolve, reject) => {
+//     bcrypt.genSalt(15, (err, salt) => {
+//       if (err) reject(err);
+//       bcrypt.hash(password, salt, (err, hash) => {
+//         if (err) reject(err);
+//         resolve(hash);
+//       });
+//     });
+//   });
+// }
 
 export class User {
   constructor(username, email, password, role) {
     this.name = username;
-    this.password = bcrypt.hashSync(password, 15);
+    this.password = hashSync(password, 15);
     this.email = email;
     this.role = role ?? "user";
   }
 
-  addUser() {
-    console.log(this.name, this.password, this.email, this.role);
-    if (!this.name || !this.password || !this.email || !this.role) {
-      console.error("Parameters missing in user class to create it");
-      return;
-    }
-    addNewUser(this.name, this.email, this.password, this.role);
+  async addUser() {
+    const res = await addNewUser(this.name, this.email, this.password, this.role);
+    return res[0]?.result; 
   }
 
-  deleteUser(id) {
-    if (!id) {
-      console.error("ID missing");
-      return;
-    }
-    deleteUser(id);
+  async deleteUser(id) {
+    const res = await deleteUser(id);
+    return res[0]?.result;
   }
 
-  updateUser(id) {
-    if (!id || !this.name || !this.password || !this.email) return;
-    updateUser(id, this.name, this.email, this.password, this.role);
+  async updateUser(id) {
+    const res = await updateUser(id, this.name, this.email, this.password, this.role);
+    return res[0]?.result;
   }
 
   async get() {
     return await getUsers();
   }
 
-  auth() {
+  async auth() {
     if (!(this.name || this.email) || !this.password) return;
-    authtenticateUser(this.name, this.email, this.password);
+    return await authtenticateUser(this.name, this.email, this.password);
   }
 
-  async getId(){
-    return await getUserId(this.name, this.email)
+  async getId() {
+    return await getUserId(this.name, this.email);
   }
 
-  generatePayload(uid){
+  generatePayload(uid) {
     const userObject = {
       id: uid ?? getUserId(this.name, this.email, this.password),
       name: this.name,
-      role: this.role
-    }
+      role: this.role,
+    };
     return userObject;
   }
 }

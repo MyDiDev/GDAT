@@ -1,8 +1,8 @@
-import jwt, { JsonWebTokenError } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { KEY } from "../db/secret.js";
 
 // expects object type like user.name, user.role
-function genToken(user) {
+export function genToken(user) {
   try {
     if (!user.id || !user.name || !user.role) {
       console.error("User fields missing to generate token");
@@ -14,13 +14,13 @@ function genToken(user) {
     });
     return token;
   } catch (error) {
-    throw new JsonWebTokenError(
+    throw new Exception(
       `Exception made trying to generate token, ${error}`
     );
   }
 }
 
-function decodeToken(payload) {
+export function decodeToken(payload) {
   try {
     if (!payload) {
       console.error("Payload missing");
@@ -39,7 +39,7 @@ function decodeToken(payload) {
       }
     );
   } catch (error) {
-    throw new JsonWebTokenError(
+    throw new Exception(
       `Exception made trying to decode payload: ${error}`
     );
   }
