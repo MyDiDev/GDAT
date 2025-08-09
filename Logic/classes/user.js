@@ -22,15 +22,21 @@ import bcrypt, { hashSync } from "bcrypt";
 
 export class User {
   constructor(username, email, password, role) {
-    this.name = username;
-    this.password = hashSync(password, 15);
-    this.email = email;
+    this.name = username ?? null;
+    const salt = bcrypt.genSaltSync(15);
+    this.password = password ? bcrypt.hashSync(password, salt) : null;
+    this.email = email ?? null;
     this.role = role ?? "user";
   }
 
   async addUser() {
-    const res = await addNewUser(this.name, this.email, this.password, this.role);
-    return res[0]?.result; 
+    const res = await addNewUser(
+      this.name,
+      this.email,
+      this.password,
+      this.role
+    );
+    return res[0]?.result;
   }
 
   async deleteUser(id) {
@@ -39,7 +45,13 @@ export class User {
   }
 
   async updateUser(id) {
-    const res = await updateUser(id, this.name, this.email, this.password, this.role);
+    const res = await updateUser(
+      id,
+      this.name,
+      this.email,
+      this.password,
+      this.role
+    );
     return res[0]?.result;
   }
 

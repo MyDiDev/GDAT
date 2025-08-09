@@ -52,12 +52,12 @@ app.get("/api/authUser", async (req, res) => {
   const email = req.query?.email;
   const password = req.query?.password;
 
+  console.log(name, email, password);
   let user = new User(name, email, password);
   const result = await user.auth();
-  if (!result) {
-    res.status(404).json({ invalid: true });
-  }
-  res.json({ result: true });
+
+  if (!result) res.json({ result: false });
+  else res.json({ result: true, data: result });
 });
 
 app.get("/", (req, res) => {
@@ -78,50 +78,56 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login/auth", async (req, res) => {
-  if (token) {
-    const decode = decodeToken(token);
-    const role = decode.role;
-    if (role == "admin") res.redirect("/dashboard");
-    res.redirect("/home");
-  }
-
-  const name = sanitize(req.body.name);
-  const password = sanitize(req.body.password);
-  const response = await fetch(
-    `${APIURL}/api/userAuth?name=${name}&email=${name}&password=${password}`,
-    {
-      method: "GET",
+  try {
+    if (token) {
+      const decode = decodeToken(token);
+      const role = decode.role;
+      if (role == "admin") res.redirect("/dashboard");
+      res.redirect("/home");
     }
-  );
-  console.log(response.ok, response.json());
 
-  if (response.ok && !response.json()?.invalid) {
-    const result = response.json();
-    const user = new User(
-      response[0]?.username,
-      response[0]?.email,
-      response[0]?.password,
-      response[0]?.role
+    const name = sanitize(req.body.name);
+    const password = sanitize(req.body.password);
+    const response = await fetch(
+      `${APIURL}/api/authUser?name=${name}&email=${name}&password=${password}`,
+      {
+        method: "GET",
+      }
     );
-    const payload = user.generatePayload(result[0]?.id);
-    token = genToken(payload);
+    const data = await response.json();
 
-    if (!token) {
-      console.error("Invalid token, try login process again");
+    if (response.ok && data?.result && data?.data) {
+      console.log(data.data[0]);
+      const user = new User(
+        data.data[0]?.username,
+        data.data[0]?.email,
+        data.data[0]?.password,
+        data.data[0]?.user_role
+      );
+      const payload = user.generatePayload(data.data[0]?.id);
+      token = genToken(payload);
+
+      if (!token) {
+        console.error("Invalid token, try login process again");
+        res.redirect("/login");
+        return;
+      }
+
+      if (user.role == "admin") {
+        res.redirect("/dashboard");
+        return;
+      }
+
+      res.redirect("/home");
+    } else {
+      console.log("Failed login, redirecting...");
       res.redirect("/login");
-      return;
     }
-
-    if (user.role == "admin") {
-      res.redirect("/dashboard");
-      return;
-    }
-
-    res.redirect("/home");
+  } catch (error) {
+    console.error("Error during authentication:", error);
+    res.status(500).json({ error: "Internal server error" });
     return;
   }
-  res.redirect("/login");
-  return;
 });
 
 app.get("/register", (req, res) => {

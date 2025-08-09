@@ -25,9 +25,10 @@ export async function connectToDb() {
           );
         else if (err.code == "PROTOCOL_CONNECTION_LOST")
           console.error("Lost connection to db, try reconnecting again");
-        throw err;
+        else throw err;
+      } else {
+        console.log("Database connected");
       }
-      console.log("Database connected");
     });
   } catch (error) {
     console.error(`Expection while trying to connect to db: ${error}`);
@@ -53,17 +54,21 @@ export async function authtenticateUser(name = "", email = "", password = "") {
     try {
       if (!(name || email) || !password)
         reject(new Error("Fields missing to authenticate user"));
-      console.log("getting user");
+      console.log("Getting user...");
       conn.query(
         "SELECT * FROM users WHERE username=? OR email=?",
         [name, email],
         (err, result) => {
           if (err) reject(err);
-          console.log("found user");
-          console.log(result);
+          console.log("Found user...");
           const passwordHash = result[0]?.password_hash;
           if (!passwordHash) reject(new Error("Invalid Password"));
-          resolve(result ? comparePassword(password, passwordHash) : false);
+          console.log("User password hashed:", passwordHash);
+          try {
+            resolve(comparePassword(password, passwordHash) ? result : false);
+          } catch (error) {
+            resolve(false);
+          }
         }
       );
     } catch (error) {
