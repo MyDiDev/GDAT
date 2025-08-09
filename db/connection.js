@@ -1,7 +1,12 @@
+import { User } from "../Logic/classes/user.js";
 import { HOST, PASSWORD, USER, DATABASE, PORT } from "./secret.js";
 import mysql from "mysql";
+import bcrypt from "bcrypt";
+import { Account } from "../Logic/classes/account.js";
+import { Transactions } from "../logic/classes/transaction.js";
 
 let conn = null;
+
 export async function connectToDb() {
   try {
     conn = mysql.createConnection({
@@ -29,73 +34,78 @@ export async function connectToDb() {
   }
 }
 
-export function comparePassword(password, password_hash) {
-  bcrypt.compare(password, password_hash, (err, result) => {
-    if (err) throw err;
-    return result;
+export async function comparePassword(password, password_hash) {
+  return new Promise((resolve, reject) => {
+    bcrypt.compare(password, password_hash, (err, result) => {
+      if (err) reject(err);
+      resolve(result);
+    });
   });
 }
 
 export async function authtenticateUser(name = "", email = "", password = "") {
   try {
     if (!conn) await connectToDb();
-    return new Promise((resolve, reject) => {
+  } catch (error) {
+    throw new Error(`Error while trying to connect to db: ${error.message}`);
+  }
+  return new Promise((resolve, reject) => {
+    try {
       if (!(name || email) || !password)
-        reject("Fields missing to authenticate user");
-      let passwordHash = "";
+        reject(new Error("Fields missing to authenticate user"));
       console.log("getting user");
       conn.query(
         "SELECT * FROM users WHERE username=? OR email=?",
+        [name, email],
         (err, result) => {
           if (err) reject(err);
           console.log("found user");
-          passwordHash = result[0]?.password_hash;
-
-          if (!passwordHash) reject("Invalid Password");
+          console.log(result);
+          const passwordHash = result[0]?.password_hash;
+          if (!passwordHash) reject(new Error("Invalid Password"));
           resolve(result ? comparePassword(password, passwordHash) : false);
         }
       );
-    });
-  } catch (error) {
-    if (error == "ReferenceError: Cannot access 'conn' before initialization") {
-      console.error("DB not connected");
-      return;
+    } catch (error) {
+      reject(error.message);
     }
-    throw error;
-  }
+  });
 }
 
 export async function getUsers() {
   try {
     if (!conn) await connectToDb();
-    return new Promise((resolve, reject) => {
+  } catch (error) {
+    throw new Error(`Error while trying to connect to db: ${error.message}`);
+  }
+  return new Promise((resolve, reject) => {
+    try {
       conn.query("CALL get_users()", (err, result) => {
         if (err) reject(err);
         resolve(result);
       });
-    });
-  } catch (error) {
-    if (error == "ReferenceError: Cannot access 'conn' before initialization") {
-      console.error("DB not connected");
-      return;
+    } catch (error) {
+      reject(error.message);
     }
-    throw error;
-  }
+  });
 }
 
 export async function getAccounts() {
   try {
-    if (!conn) console.log("Couldn't find connection to MySQL.");
-    return new Promise((resolve, reject) => {
+    if (!conn) await connectToDb();
+  } catch (error) {
+    throw new Error(`Error while trying to connect to db: ${error.message}`);
+  }
+  return new Promise((resolve, reject) => {
+    try {
       conn.query("CALL get_accounts()", (err, result) => {
         if (err) reject(err);
         resolve(result);
       });
-    });
-  } catch (error) {
-    console.log(error?.code);
-    throw error;
-  }
+    } catch (error) {
+      reject(error.message);
+    }
+  });
 }
 
 export async function getTransactions() {
@@ -169,24 +179,20 @@ export async function getUserId(name = "", email = "") {
 export async function addNewUser(name, email, password, role = "user") {
   try {
     if (!conn) await connectToDb();
-
     return new Promise((resolve, reject) => {
       if (!name || !email || !password || !role)
-        console.error("User fields missing");
+        reject(new Error("User fields missing"));
       conn.query(
         "CALL insert_user(?, ?, ?, ?)",
         [name, email, password, role],
         (err, result) => {
           if (err) reject(err);
-          resolve(result);
+          resolve(result[0]);
         }
       );
     });
   } catch (error) {
-    if (error.message == "Cannot access 'conn' before initialization") {
-      console.error("DB not connected");
-      return;
-    }
+    throw error.message;
   }
 }
 
@@ -194,62 +200,69 @@ export async function addNewTransaction(
   description,
   amount,
   accountId,
-  state = "On Queque"
+  state = "On Queque",
+  type
 ) {
   try {
-    return new Promise((resolve, reject) => {
-      if (!description || !amount || !accountId || !state)
-        console.error("Transactions fields missing");
+    if (!conn) await connectToDb();
+  } catch (error) {
+    throw new Error(`Error while trying to connect to db: ${error.message}`);
+  }
+  return new Promise((resolve, reject) => {
+    try {
+      if (!description || !amount || !accountId || !state || !type)
+        reject(new Error("Transactions fields missing"));
       conn.query(
-        "CALL insert_transaction (?, ?, ?, ?)",
-        [description, amount, accountId],
+        "CALL insert_transaction (?, ?, ?, ?, ?)",
+        [accountId, description, amount, state, type],
         (err, result) => {
           if (err) reject(err);
           resolve(result);
         }
       );
-    });
-  } catch (error) {
-    if (error == "ReferenceError: Cannot access 'conn' before initialization") {
-      console.error("DB not connected");
-      return;
+    } catch (error) {
+      reject(error.message);
     }
-    throw error;
-  }
+  });
 }
 
-export async function addNewAccount(uid, amount, type) {
+export async function addNewAccount(uid, balance, type) {
   try {
     if (!conn) await connectToDb();
+  } catch (error) {
+    throw new Error(`Error while trying to connect to db: ${error.message}`);
+  }
 
-    return new Promise((resolve, reject) => {
-      if (!uid || !amount || !type) console.error("User fields missing");
+  return new Promise((resolve, reject) => {
+    try {
+      if (!uid || !balance || !type) reject(new Error("User fields missing"));
       conn.query(
         "CALL insert_account(?, ?, ?)",
-        [uid, amount, type],
+        [uid, balance, type],
         (err, result) => {
           if (err) reject(err);
-          resolve(result);
+          resolve(result[0]);
         }
       );
-    });
-  } catch (error) {
-    if (error == "ReferenceError: Cannot access 'conn' before initialization") {
-      console.error("DB not connected");
-      return;
+    } catch (error) {
+      reject(error.message);
     }
-    throw error;
-  }
+  });
 }
 
 export async function deleteUser(id) {
-  if (!conn) await connectToDb();
+  try {
+    if (!conn) await connectToDb();
+  } catch (error) {
+    throw new Error(`Error while trying to connect to db: ${error.message}`);
+  }
+
   return new Promise((resolve, reject) => {
     try {
-      if (!id) console.error("User.id missing");
+      if (!id) reject(new Error("User.id missing"));
       conn.query("CALL delete_user(?)", [id], (err, result) => {
         if (err) reject(err);
-        resolve(result);
+        resolve(result[0]);
       });
     } catch (error) {
       reject(error.message);
@@ -259,103 +272,111 @@ export async function deleteUser(id) {
 
 export async function deleteTransaction(id) {
   try {
-    if (!conn) connectToDb();
-    return new Promise((resolve, reject) => {
-      if (!id) reject("Transactions id missing");
+    if (!conn) await connectToDb();
+  } catch (error) {
+    throw new Error(`Error while trying to connect to db: ${error.message}`);
+  }
+
+  return new Promise((resolve, reject) => {
+    try {
+      if (!id) reject(new Error("Transactions id missing"));
       conn.query("CALL delete_transaction(?)", [id], (err, result) => {
         if (err) reject(err);
-        resolve(result);
+        resolve(result[0]);
       });
-    });
-  } catch (error) {
-    if (error == "ReferenceError: Cannot access 'conn' before initialization") {
-      console.error("DB not connected");
-      return;
+    } catch (error) {
+      reject(error.message);
     }
-    throw error;
-  }
+  });
 }
 
-export async function deleteAccount(id) {
+export async function deleteAccount(id, uid) {
   try {
     if (!conn) await connectToDb();
-    return new Promise((resolve, reject) => {
-      if (!id) reject("Account id missing");
-      conn.query("CALL delete_account(?)", [id], (err, result) => {
-        if (err) reject(err);
-        resolve(result);
-      });
-    });
   } catch (error) {
-    if (error == "ReferenceError: Cannot access 'conn' before initialization") {
-      console.error("DB not connected");
-      return;
-    }
-    throw error;
+    throw new Error(`Error while trying to connect to db: ${error.message}`);
   }
+  return new Promise((resolve, reject) => {
+    try {
+      if (!id || !uid) reject(new Error("Account or user ID missing"));
+      conn.query("CALL delete_account(?, ?)", [id, uid], (err, result) => {
+        if (err) reject(err);
+        resolve(result[0]);
+      });
+    } catch (error) {
+      reject(error.message);
+    }
+  });
 }
 
 export async function updateUser(id, name, email, password, role = "user") {
   try {
     if (!conn) await connectToDb();
-    return new Promise((resolve, reject) => {
+  } catch (error) {
+    throw new Error(`Error while trying to connect to db: ${error.message}`);
+  }
+  return new Promise((resolve, reject) => {
+    try {
       if (!id || !name || !email || !password || !role)
-        console.error("User fields missing");
+        reject(new Error("User fields missing"));
       conn.query(
         "CALL update_user (?, ?, ?, ?, ?)",
         [id, name, email, password, role],
         (err, result) => {
           if (err) reject(err);
-          resolve(result);
+          resolve(result[0]);
         }
       );
-    });
-  } catch (error) {}
+    } catch (error) {
+      reject(error.message);
+    }
+  });
 }
 
-export async function updateTransaction(id, description, amount, state) {
+export async function updateTransaction(id, description, amount, state, type) {
   try {
     if (!conn) await connectToDb();
-    return new Promise((resolve, reject) => {
-      if (!id || !description || !amount || !state)
-        reject("Transactions fields missing");
+  } catch (error) {
+    throw new Error(`Error while trying to connect to db: ${error.message}`);
+  }
+  return new Promise((resolve, reject) => {
+    try {
+      if (!id || !description || !amount || !state || !type)
+        reject(new Error("Transactions fields missing"));
       conn.query(
-        "CALL update_transaction (?, ?, ?, ?)",
-        [id, description, amount, state],
+        "CALL update_transaction (?, ?, ?, ?, ?)",
+        [id, description, amount, state, type],
         (err, result) => {
           if (err) reject(err);
-          resolve(result);
+          resolve(result[0]);
         }
       );
-    });
-  } catch (error) {
-    throw error;
-  }
+    } catch (error) {
+      reject(error.message);
+    }
+  });
 }
 
 export async function updateAccount(id, uid, amount, type) {
   try {
-    if (!conn) connectToDb();
-    return new Promise((resolve, reject) => {
+    if (!conn) await connectToDb();
+  } catch (error) {
+    throw new Error(`Error while trying to connect to db: ${error.message}`);
+  }
+  return new Promise((resolve, reject) => {
+    try {
       if (!id || !uid || !amount || !type)
-        reject("Account fields missing");
+        reject(new Error("Account fields missing"));
       conn.query(
         "CALL update_account(?, ?, ?, ?)",
         [id, uid, amount, type],
         (err, result) => {
           if (err) reject(err);
-          resolve(result);
+          resolve(result[0]);
         }
       );
-    });
-  } catch (error) {
-    throw error;
-  }
+    } catch (error) {
+      reject(error.message);
+    }
+  });
 }
-
-// addNewUser("user", "user@gmail.com", "0000", "admin");
-updateUser(5, "user1", "user1@gmail.com", "1234", "user");
-deleteUser(2);
-
-const users = await getUsers();
-console.log(users[0]);

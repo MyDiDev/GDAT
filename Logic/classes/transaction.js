@@ -6,27 +6,24 @@ import {
 } from "../../db/connection.js";
 
 export class Transactions {
-  constructor(description, amount, accountId, state) {
+  constructor(description, amount, accountId, state, type) {
     this.description = description;
     this.amount = amount;
     this.accountId = accountId;
     this.state = state ?? "On Queque";
+    this.type = type;
   }
 
-  addTransaction() {
-    if (!this.description || !this.amount || !this.accountId || !this.state)
-      return;
-    addNewTransaction(this.description, this.amount, this.state);
+  async addTransaction() {
+    return await addNewTransaction(this.description, this.amount, this.accountId, this.state, this.type);
   }
 
-  deleteTransaction(id) {
-    if (!this.id) return;
-    deleteTransaction(id);
+  async deleteTransaction(id) {
+    return await deleteTransaction(id);
   }
 
-  updateTransaction(id) {
-    if (!this.id || !this.description || !this.amount || !this.state) return;
-    updateTransaction(id, this.description, this.amount, this.state);
+  async updateTransaction(id) {
+    return await updateTransaction(id, this.description, this.amount, this.state, this.type);
   }
 
   async get() {

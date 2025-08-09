@@ -12,19 +12,16 @@ export class Account {
     this.type = type;
   }
 
-  addAccount() {
-    if (!this.uid || !this.balance || !this.type) return;
-    addNewAccount(this.uid, this.balance, this.type);
+  async addAccount() {
+    return await addNewAccount(this.uid, this.balance, this.type);
   }
 
-  deleteAccount(id) {
-    if (!this.id) return;
-    deleteAccount(id);
+  async deleteAccount(id) {
+    return await deleteAccount(id, this.uid);
   }
 
-  updateAccount(id) {
-    if (!this.id || !this.uid || !this.balance || !this.type) return;
-    updateAccount(id, this.uid, this.balance, this.type);
+  async updateAccount(id) {
+    return await updateAccount(id, this.uid, this.balance, this.type);
   }
 
   async get() {

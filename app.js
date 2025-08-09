@@ -112,7 +112,13 @@ app.post("/login/auth", async (req, res) => {
       return;
     }
 
-    // redirect to home if user, else dashboard if admin
+    if (user.role == "admin") {
+      res.redirect("/dashboard");
+      return;
+    }
+
+    res.redirect("/home");
+    return;
   }
   res.redirect("/login");
   return;
