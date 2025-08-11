@@ -8,6 +8,7 @@ import { Account } from "./Logic/classes/account.js";
 import { Transactions } from "./logic/classes/transaction.js";
 import { sanitize } from "./utils/sanitizer.js";
 import { genToken, decodeToken } from "./logic/tokenizer.js";
+import { error } from "console";
 
 const app = express();
 let token = null;
@@ -22,6 +23,17 @@ app.use(express.urlencoded());
 await connectToDb();
 
 app.get("/api/data", async (req, res) => {
+  if (!token) {
+    return res.status(404).json({ error: "Invalid token to contact API" });
+  }
+  const decode = await decodeToken(token);
+  console.log(decode);
+  const role = decode?.role;
+  
+  if (role != "admin") {
+    return res.status(404).json({ error: "Invalid role to contact API" });
+  }
+
   const table = req.query.table ?? null;
   if (!table) {
     res.status(404).json({ error: "Missing 'table' in get request" });
@@ -48,39 +60,55 @@ app.get("/api/data", async (req, res) => {
 });
 
 app.get("/api/authUser", async (req, res) => {
-  const name = req.query?.name;
-  const email = req.query?.email;
-  const password = req.query?.password;
+  const name = sanitize(req.query?.name);
+  const email = sanitize(req.query?.email);
+  const password = sanitize(req.query?.password);
 
   console.log(name, email, password);
-  let user = new User(name, email, password);
-  const result = await user.auth();
+  const user = new User(name, email);
+  const result = await user.auth(password);
 
   if (!result) res.json({ result: false });
   else res.json({ result: true, data: result });
+});
+
+app.post("/api/data/add/user", async (req, res) => {
+  const name = sanitize(req.body.name);
+  const email = sanitize(req.body.email);
+  const password = sanitize(req.body.password);
+
+  console.log(name, email, password);
+  const user = new User(name, email, password, "user");
+  const result = await user.addUser();
+
+  if (result[0]?.result) res.json({ result: result[0]?.result });
+  else res.json({ result: "Could not add User." });
 });
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "home.html"));
 });
 
-app.get("/login", (req, res) => {
+app.get("/login", async (req, res) => {
   if (token) {
-    const decode = decodeToken(token);
-    const role = decode.role;
+    const decode = await decodeToken(token);
+    console.log(decode);
+
+    const role = decode?.role;
     if (role == "admin") {
       res.redirect("/dashboard");
+      return;
     }
-    res.redirect("/home");
-    return;
+    return res.redirect("/home");
+  } else {
+    res.sendFile(path.join(__dirname, "views", "login.html"));
   }
-  res.sendFile(path.join(__dirname, "views", "login.html"));
 });
 
 app.post("/login/auth", async (req, res) => {
   try {
     if (token) {
-      const decode = decodeToken(token);
+      const decode = await decodeToken(token);
       const role = decode.role;
       if (role == "admin") res.redirect("/dashboard");
       res.redirect("/home");
@@ -121,7 +149,7 @@ app.post("/login/auth", async (req, res) => {
       res.redirect("/home");
     } else {
       console.log("Failed login, redirecting...");
-      res.redirect("/login");
+      res.redirect("/login?error=Invalid+credentials");
     }
   } catch (error) {
     console.error("Error during authentication:", error);
@@ -130,9 +158,9 @@ app.post("/login/auth", async (req, res) => {
   }
 });
 
-app.get("/register", (req, res) => {
+app.get("/register", async (req, res) => {
   if (token) {
-    const decode = decodeToken(token);
+    const decode = await decodeToken(token);
     const role = decode.role;
     if (role == "admin") {
       res.redirect("/dashboard");
@@ -143,30 +171,54 @@ app.get("/register", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "register.html"));
 });
 
-app.post("/register/auth", (req, res) => {
+app.post("/register/add", async (req, res) => {
   if (token) {
-    const decode = decodeToken(token);
+    const decode = await decodeToken(token);
     const role = decode.role;
     if (role == "admin") {
-      res.redirect("/dashboard");
+      return res.redirect("/dashboard");
     }
-    res.redirect("/home");
-    return;
+    return res.redirect("/home");
   }
 
-  const name = sanitize(req.body.name);
-  const email = sanitize(req.body.email);
-  const password = sanitize(req.body.password);
-  const user = new User(name, email, password);
-  user.addUser();
-  // redirect to /login
+  try {
+    const name = sanitize(req.body.name);
+    const email = sanitize(req.body.email);
+    const password = sanitize(req.body.password);
+
+    const response = await fetch(`${APIURL}/api/data/add/user`, {
+      method: "POST",
+      body: { name: name, email: email, password: password },
+    });
+    const data = response.json();
+
+    if (response.ok && data.result) {
+      res.redirect("/login");
+      return;
+    } else return res.redirect("/register?error=Invalid+Credentials");
+  } catch (error) {
+    console.error("Error while trying to register:", error.message);
+    return res.redirect("/register?error=Invalid+Credentials");
+  }
 });
+
+app.post("/dashboard/users", (req, res) => {});
+
+app.post("/dashboard/add/user", (req, res) => {});
+
+app.post("/dashboard/update/user", (req, res) => {});
 
 app.post("/dashboard/accounts", (req, res) => {});
 
 app.post("/dashboard/add/account", (req, res) => {});
 
 app.post("/dashboard/update/account", (req, res) => {});
+
+app.post("/dashboard/transactions", (req, res) => {});
+
+app.post("/dashboard/add/transaction", (req, res) => {});
+
+app.post("/dashboard/update/transaction", (req, res) => {});
 
 app.use((req, res) => {
   res.status(404).sendFile(path.join(__dirname, "views", "404.html"));

@@ -1,7 +1,7 @@
 import { User } from "../Logic/classes/user.js";
 import { HOST, PASSWORD, USER, DATABASE, PORT } from "./secret.js";
 import mysql from "mysql";
-import bcrypt from "bcrypt";
+import bcrypt, { compare } from "bcrypt";
 import { Account } from "../Logic/classes/account.js";
 import { Transactions } from "../logic/classes/transaction.js";
 
@@ -18,16 +18,35 @@ export async function connectToDb() {
     });
 
     conn.connect((err) => {
-      if (err) {
-        if (err.code == "ECONNRESET")
-          console.error(
-            "Try and check if proxy or vpn is active, if so try again without it."
-          );
-        else if (err.code == "PROTOCOL_CONNECTION_LOST")
-          console.error("Lost connection to db, try reconnecting again");
-        else throw err;
+      if (err && err.code == "ECONNRESET") {
+        console.error(
+          "VPN or Proxy might be blocking the connection to the DB."
+        );
+        console.warn("Retrying in 5 seconds...");
+        setTimeout(async () => {
+          await connectToDb();
+        }, 5000);
       } else {
         console.log("Database connected");
+      }
+    });
+
+    conn.on("error", async (err) => {
+      console.error("DB error:", err.code);
+      if (err.code == "PROTOCOL_CONNECTION_LOST") {
+        console.log("Reconnecting to DB...");
+        await connectToDb();
+      }
+      else if (err.code == "ECONNRESET") {
+        console.error(
+          "VPN or Proxy might be blocking the connection to the DB."
+        );
+        console.warn("Retrying in 5 seconds...");
+        setTimeout(async () => {
+          await connectToDb();
+        }, 5000);
+      } else {
+        throw err;
       }
     });
   } catch (error) {
@@ -58,14 +77,17 @@ export async function authtenticateUser(name = "", email = "", password = "") {
       conn.query(
         "SELECT * FROM users WHERE username=? OR email=?",
         [name, email],
-        (err, result) => {
+        async (err, result) => {
           if (err) reject(err);
           console.log("Found user...");
           const passwordHash = result[0]?.password_hash;
           if (!passwordHash) reject(new Error("Invalid Password"));
           console.log("User password hashed:", passwordHash);
           try {
-            resolve(comparePassword(password, passwordHash) ? result : false);
+            console.log(password);
+            const res = await comparePassword(password, passwordHash);
+            console.log(res);
+            resolve(res ? result : false);
           } catch (error) {
             resolve(false);
           }
