@@ -14,33 +14,30 @@ export function genToken(user) {
     });
     return token;
   } catch (error) {
-    throw new Exception(
-      `Exception made trying to generate token, ${error}`
-    );
+    throw new Exception(`Exception made trying to generate token, ${error}`);
   }
 }
 
-export function decodeToken(payload) {
-  try {
-    if (!payload) {
-      console.error("Payload missing");
-      return;
-    }
+export async function decodeToken(payload) {
+  return new Promise((resolve, reject) => {
+    try {
+      if (!payload) reject(new Error("Payload missing"));
 
-    jwt.verify(
-      payload,
-      KEY,
-      {
-        algorithm: "HS256",
-      },
-      (err, decode) => {
-        if (err) throw err;
-        return decode;
-      }
-    );
-  } catch (error) {
-    throw new Exception(
-      `Exception made trying to decode payload: ${error}`
-    );
-  }
+      jwt.verify(
+        payload,
+        KEY,
+        {
+          algorithm: "HS256",
+        },
+        (err, decode) => {
+          if (err) reject(err);
+          resolve(decode);
+        }
+      );
+    } catch (error) {
+      reject(
+        new Error(`Exception made trying to decode payload: ${error?.message}`)
+      );
+    }
+  });
 }
