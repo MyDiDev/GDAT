@@ -82,11 +82,8 @@ export async function authtenticateUser(name = "", email = "", password = "") {
           console.log("Found user...");
           const passwordHash = result[0]?.password_hash;
           if (!passwordHash) reject(new Error("Invalid Password"));
-          console.log("User password hashed:", passwordHash);
           try {
-            console.log(password);
             const res = await comparePassword(password, passwordHash);
-            console.log(res);
             resolve(res ? result : false);
           } catch (error) {
             resolve(false);
@@ -244,7 +241,7 @@ export async function addNewTransaction(
         [accountId, description, amount, state, type],
         (err, result) => {
           if (err) reject(err);
-          resolve(result);
+          resolve(result[0]);
         }
       );
     } catch (error) {

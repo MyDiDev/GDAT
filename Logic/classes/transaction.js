@@ -15,15 +15,15 @@ export class Transactions {
   }
 
   async addTransaction() {
-    return await addNewTransaction(this.description, this.amount, this.accountId, this.state, this.type);
+    return await addNewTransaction(this.description, this.amount, this.accountId, this.state, this.type)?.result;
   }
 
   async deleteTransaction(id) {
-    return await deleteTransaction(id);
+    return await deleteTransaction(id)?.result;
   }
 
   async updateTransaction(id) {
-    return await updateTransaction(id, this.description, this.amount, this.state, this.type);
+    return await updateTransaction(id, this.description, this.amount, this.state, this.type)?.result;
   }
 
   async get() {
