@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -27,21 +27,74 @@
         id="main-home"
         style="height: 100dvh"
       >
+        <button
+          type="button"
+          data-bs-target="#errModal"
+          data-bs-toggle="modal"
+          class="d-none"
+          id="errBtnTrigger"
+        ></button>
+        <div class="modal" id="errModal">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Error while trying to register :(</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <div>
+                  <p id="errMessage"></p>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn-danger"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
         <div id="login-container" class="p-3 rounded">
           <h1>Log In</h1>
           <hr />
           <form action="/login/auth" method="post">
             <div class="mb-3">
               <label for="name" class="form-label">Enter your username:</label>
-              <input type="text" class="form-control" id="name" name="name" placeholder="your username here" />
+              <input
+                type="text"
+                class="form-control"
+                id="name"
+                name="name"
+                placeholder="your username here"
+              />
             </div>
             <div class="mb-3">
-              <label for="password" class="form-label">Enter your password:</label>
-              <input type="password" class="form-control" id="password" name="password" placeholder="your password here" />
-              <span class="text-white" style="font-size: 12px;">Did you forget your password? <a href="#">Click here</a></span>
+              <label for="password" class="form-label"
+                >Enter your password:</label
+              >
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                name="password"
+                placeholder="your password here"
+              />
+              <span class="text-white" style="font-size: 12px"
+                >Did you forget your password? <a href="#">Click here</a></span
+              >
             </div>
             <div class="mb-3">
-                <button type="submit" class="btn btn-primary w-100">Login</button>
+              <button type="submit" class="btn btn-primary w-100">Login</button>
             </div>
           </form>
         </div>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -27,6 +27,44 @@
         id="main-home"
         style="height: 100dvh"
       >
+        <button
+          type="button"
+          data-bs-target="#errModal"
+          data-bs-toggle="modal"
+          class="d-none"
+          id="errBtnTrigger"
+        ></button>
+        <div class="modal" id="errModal">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Error while trying to register :(</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <div>
+                  <p id="errMessage"></p>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn-danger"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div id="login-container" style="width: 500px" class="p-3 rounded">
           <h1>Register to GDAT</h1>
           <hr />
@@ -63,20 +101,16 @@
                 placeholder="your password here"
               />
             </div>
-            <div class="mb-3">
-              <label for="password" class="form-label">Confirm password:</label>
-              <input
-                type="password"
-                class="form-control"
-                id="password"
-                name="password"
-                placeholder="your password here"
-              />
-            </div>
+
             <div class="my-3">
-              <button type="submit" class="btn btn-primary w-100">Enter to GDAT</button>
+              <button type="submit" class="btn btn-primary w-100">
+                Enter to GDAT
+              </button>
             </div>
-            <p class="text-center m-0" style="font-size: 12px;">Once you register into GDAT, you are automatically accepting our Terms & Conditions.</p>
+            <p class="text-center m-0" style="font-size: 12px">
+              Once you register into GDAT, you are automatically accepting our
+              Terms & Conditions.
+            </p>
           </form>
         </div>
       </section>
@@ -91,7 +125,8 @@
       </div>
     </footer>
 
-    <script
+    <script src="https://www.google.com/recaptcha/api.js"></script>
+    <scriptck
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
       crossorigin="anonymous"

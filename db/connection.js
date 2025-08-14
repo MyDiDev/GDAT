@@ -82,11 +82,8 @@ export async function authtenticateUser(name = "", email = "", password = "") {
           console.log("Found user...");
           const passwordHash = result[0]?.password_hash;
           if (!passwordHash) reject(new Error("Invalid Password"));
-          console.log("User password hashed:", passwordHash);
           try {
-            console.log(password);
             const res = await comparePassword(password, passwordHash);
-            console.log(res);
             resolve(res ? result : false);
           } catch (error) {
             resolve(false);
@@ -244,7 +241,7 @@ export async function addNewTransaction(
         [accountId, description, amount, state, type],
         (err, result) => {
           if (err) reject(err);
-          resolve(result);
+          resolve(result[0]);
         }
       );
     } catch (error) {
@@ -262,16 +259,19 @@ export async function addNewAccount(uid, balance, type) {
 
   return new Promise((resolve, reject) => {
     try {
-      if (!uid || !balance || !type) reject(new Error("User fields missing"));
+      if (!uid || !balance || !type) reject(new Error("Account fields missing"));
       conn.query(
         "CALL insert_account(?, ?, ?)",
         [uid, balance, type],
         (err, result) => {
+          console.log(uid, balance, type);
           if (err) reject(err);
+          console.log(result);
           resolve(result[0]);
         }
       );
     } catch (error) {
+      console.log("ERROR HERE")
       reject(error.message);
     }
   });

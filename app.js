@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { connectToDb } from "./db/connection.js";
+import { connectToDb, getUserId } from "./db/connection.js";
 import { fileURLToPath } from "url";
 import path, { dirname } from "path";
 import { User } from "./Logic/classes/user.js";
@@ -8,7 +8,6 @@ import { Account } from "./Logic/classes/account.js";
 import { Transactions } from "./logic/classes/transaction.js";
 import { sanitize } from "./utils/sanitizer.js";
 import { genToken, decodeToken } from "./logic/tokenizer.js";
-import { error } from "console";
 
 const app = express();
 let token = null;
@@ -23,16 +22,16 @@ app.use(express.urlencoded());
 await connectToDb();
 
 app.get("/api/data", async (req, res) => {
-  if (!token) {
-    return res.status(404).json({ error: "Invalid token to contact API" });
-  }
-  const decode = await decodeToken(token);
-  console.log(decode);
-  const role = decode?.role;
-  
-  if (role != "admin") {
-    return res.status(404).json({ error: "Invalid role to contact API" });
-  }
+  // if (!token) {
+  //   return res.status(404).json({ error: "Invalid token to contact API" });
+  // }
+  // const decode = await decodeToken(token);
+  // console.log(decode);
+  // const role = decode?.role;
+
+  // if (role != "admin") {
+  //   return res.status(404).json({ error: "Invalid role to contact API" });
+  // }
 
   const table = req.query.table ?? null;
   if (!table) {
@@ -59,29 +58,115 @@ app.get("/api/data", async (req, res) => {
   }
 });
 
-app.get("/api/authUser", async (req, res) => {
-  const name = sanitize(req.query?.name);
-  const email = sanitize(req.query?.email);
-  const password = sanitize(req.query?.password);
+app.post("/api/auth", async (req, res) => {
+  const name = sanitize(req.body?.name);
+  const email = sanitize(req.body?.email);
+  const password = sanitize(req.body?.password);
 
-  console.log(name, email, password);
   const user = new User(name, email);
-  const result = await user.auth(password);
-
-  if (!result) res.json({ result: false });
-  else res.json({ result: true, data: result });
+  try {
+    const result = await user.auth(password);
+    if (!result) res.json({ result: false });
+    else res.json({ result: true, data: result });
+  } catch (error) {
+    return res.redirect("/login");
+  }
 });
 
 app.post("/api/data/add/user", async (req, res) => {
-  const name = sanitize(req.body.name);
-  const email = sanitize(req.body.email);
-  const password = sanitize(req.body.password);
+  console.log(req.body);
+  const name = sanitize(req.body?.name);
+  const email = sanitize(req.body?.email);
+  const password = sanitize(req.body?.password);
 
-  console.log(name, email, password);
   const user = new User(name, email, password, "user");
   const result = await user.addUser();
 
-  if (result[0]?.result) res.json({ result: result[0]?.result });
+  if (result) res.json({ result: result });
+  else res.json({ result: "Could not add User." });
+});
+
+app.post("/api/data/add/account", async (req, res) => {
+  console.log(req.body);
+  const email = sanitize(req.body?.email);
+  const balance = Number(req.body?.balance);
+  const accType = sanitize(req.body?.accType);
+
+  const uid = await getUserId(email, email);
+  const account = new Account(uid, balance, accType);
+  const result = await account.addAccount();
+
+  if (result) res.json({ result: result });
+  else res.json({ result: "Could not add Account." });
+});
+
+app.post("/api/data/add/transaction", async (req, res) => {
+  console.log(req.body);
+  const name = sanitize(req.body?.name);
+  const email = sanitize(req.body?.email);
+  const password = sanitize(req.body?.password);
+
+  const user = new User(name, email, password, "user");
+  const result = await user.addUser();
+
+  if (result) res.json({ result: result });
+  else res.json({ result: "Could not add User." });
+});
+
+app.post("/api/data/update/user", async (req, res) => {
+  console.log(req.body);
+  let id = -1;
+  try {
+    id = Number(req.body?.id);
+  } catch (error) {
+    console.error(error.message);
+    res.json({});
+  }
+
+  const name = sanitize(req.body?.name);
+  const email = sanitize(req.body?.email);
+  const password = sanitize(req.body?.password);
+
+  const user = new User(name, email, password, "user");
+  const result = await user.updateUser(id);
+
+  if (result) res.json({ result: result });
+  else res.json({ result: "Could not modify User." });
+});
+
+app.post("/api/data/update/account", async (req, res) => {
+  console.log(req.body);
+  const id = Number(req.body?.id);
+  const email = sanitize(req.body?.email);
+  const balance = Number(req.body?.balance);
+  const accType = sanitize(req.body?.accType);
+
+  const uid = await getUserId(email, email);
+  const account = new Account(uid, balance, accType);
+  const result = await account.updateAccount(id);
+  console.log(result);
+  if (result) res.json({ result: result });
+  else res.json({ result: "Could not modify Account." });
+});
+
+app.post("/api/data/update/transaction", async (req, res) => {
+  console.log(req.body);
+  let id = -1;
+  try {
+    id = Number(req.body?.id);
+  } catch (error) {
+    console.error(error.message);
+    res.json({});
+  }
+
+  const name = sanitize(req.body?.name);
+  const email = sanitize(req.body?.email);
+  const password = sanitize(req.body?.password);
+
+  const user = new User(name, email, password, "user");
+  const result = await user.addUser();
+
+  if (result) res.json({ result: result });
   else res.json({ result: "Could not add User." });
 });
 
@@ -110,18 +195,19 @@ app.post("/login/auth", async (req, res) => {
     if (token) {
       const decode = await decodeToken(token);
       const role = decode.role;
-      if (role == "admin") res.redirect("/dashboard");
-      res.redirect("/home");
+      if (role == "admin") return res.redirect("/dashboard");
+      else return res.redirect("/home");
     }
 
     const name = sanitize(req.body.name);
     const password = sanitize(req.body.password);
-    const response = await fetch(
-      `${APIURL}/api/authUser?name=${name}&email=${name}&password=${password}`,
-      {
-        method: "GET",
-      }
-    );
+    const response = await fetch(`${APIURL}/api/auth`, {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify({ name, name, password }),
+    });
     const data = await response.json();
 
     if (response.ok && data?.result && data?.data) {
@@ -134,22 +220,16 @@ app.post("/login/auth", async (req, res) => {
       );
       const payload = user.generatePayload(data.data[0]?.id);
       token = genToken(payload);
-
+      console.log("token created:", token);
       if (!token) {
         console.error("Invalid token, try login process again");
-        res.redirect("/login");
-        return;
+        return res.redirect("/login?error=Invalid+Session+Try+again");
       }
-
-      if (user.role == "admin") {
-        res.redirect("/dashboard");
-        return;
-      }
-
-      res.redirect("/home");
+      if (user.role == "admin") return res.redirect("/dashboard");
+      return res.redirect("/home");
     } else {
       console.log("Failed login, redirecting...");
-      res.redirect("/login?error=Invalid+credentials");
+      return res.redirect("/login?error=Invalid+credentials");
     }
   } catch (error) {
     console.error("Error during authentication:", error);
@@ -164,6 +244,7 @@ app.get("/register", async (req, res) => {
     const role = decode.role;
     if (role == "admin") {
       res.redirect("/dashboard");
+      return;
     }
     res.redirect("/home");
     return;
@@ -188,13 +269,16 @@ app.post("/register/add", async (req, res) => {
 
     const response = await fetch(`${APIURL}/api/data/add/user`, {
       method: "POST",
-      body: { name: name, email: email, password: password },
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name, email, password }),
     });
-    const data = response.json();
 
-    if (response.ok && data.result) {
-      res.redirect("/login");
-      return;
+    const data = await response.json();
+    console.log(response.ok, data);
+    if (response.ok && data.result && data.result != "Could not add User.") {
+      return res.redirect("/login");
     } else return res.redirect("/register?error=Invalid+Credentials");
   } catch (error) {
     console.error("Error while trying to register:", error.message);
@@ -202,23 +286,168 @@ app.post("/register/add", async (req, res) => {
   }
 });
 
-app.post("/dashboard/users", (req, res) => {});
+app.get("/dashboard", async (req, res) => {
+  if (!token)
+    return res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
+  const decode = await decodeToken(token);
+  const role = decode.role;
+  if (role != "admin")
+    res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
+  res.sendFile(path.join(__dirname, "views", "Dashboard", "index.html"));
+});
+
+app.get("/dashboard/users", async (req, res) => {
+  if (!token)
+    return res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
+  const decode = await decodeToken(token);
+  const role = decode.role;
+  if (role != "admin")
+    return res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
+  res.sendFile(path.join(__dirname, "views", "Dashboard", "users.html"));
+});
 
 app.post("/dashboard/add/user", (req, res) => {});
 
 app.post("/dashboard/update/user", (req, res) => {});
 
-app.post("/dashboard/accounts", (req, res) => {});
+app.get("/dashboard/accounts", async (req, res) => {
+  if (!token) return res.json({ error: "Invalid token found" });
+  const decode = await decodeToken(token);
+  const role = decode.role;
+  if (role != "admin") return res.json({ error: "Invalid User" });
 
-app.post("/dashboard/add/account", (req, res) => {});
+  res.sendFile(path.join(__dirname, "views", "Dashboard", "accounts.html"));
+});
 
-app.post("/dashboard/update/account", (req, res) => {});
+app.post("/dashboard/add/account", async (req, res) => {
+  if (!token) return res.json({ error: "Invalid token found" });
+  const decode = await decodeToken(token);
+  const role = decode.role;
+  if (role != "admin") return res.json({ error: "Invalid User" });
+  console.log(res.body);
+  console.log(res.query);
+  const email = sanitize(req.body?.email);
+  const balance = Number(req.body?.balance);
+  const accType = sanitize(req.body?.accountType);
+  console.log(email, balance, accType);
+  const result = await fetch(`${APIURL}/api/data/add/account`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, balance, accType }),
+  });
 
-app.post("/dashboard/transactions", (req, res) => {});
+  if (result.ok && result.result != "Could not add Account")
+    return res.redirect("/dashboard/accounts");
+  else return res.redirect("/dashboard/accounts?error=Could+not+add+Account");
+});
 
-app.post("/dashboard/add/transaction", (req, res) => {});
+app.post("/dashboard/update/account", async (req, res) => {
+  if (!token) return res.json({ error: "Invalid token found" });
+  const decode = await decodeToken(token);
+  const role = decode.role;
+  if (role != "admin") return res.json({ error: "Invalid User" });
+  const id = Number(req.body?.id);
+  const email = req.body?.email;
+  const balance = Number(req.body?.balance);
+  const accType = sanitize(req.body?.accountType);
 
-app.post("/dashboard/update/transaction", (req, res) => {});
+  console.log(email, balance, accType);
+  const result = await fetch(`${APIURL}/api/data/update/account`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ id, email, balance, accType }),
+  });
+
+  if (result.ok && result.result != "Could not modify Account")
+    return res.redirect("/dashboard/accounts");
+  else
+    return res.redirect("/dashboard/accounts?error=Could+not+modify+Account");
+});
+
+app.get("/dashboard/transactions", async (req, res) => {
+  if (!token)
+    return res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
+  const decode = await decodeToken(token);
+  const role = decode.role;
+  if (role != "admin")
+    return res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
+  res.sendFile(path.join(__dirname, "views", "Dashboard", "transactions.html"));
+});
+
+app.post("/dashboard/add/transaction", async (req, res) => {
+  if (!token) return res.json({ error: "Invalid token found" });
+  const decode = await decodeToken(token);
+  const role = decode.role;
+  if (role != "admin") return res.json({ error: "Invalid User" });
+
+  const email = sanitize(req.body?.email);
+  const balance = Number(req.body?.balance);
+  const accType = sanitize(req.body?.type);
+
+  const result = await fetch(`${APIURL}/api/data/add/transaction`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, balance, accType }),
+  });
+
+  if (result.ok && result.result != "Could not add Transaction")
+    return res.redirect("/dashboard/transactions");
+  else
+    return res.redirect(
+      "/dashboard/transactions?error=Could+not+add+Transaction"
+    );
+});
+
+app.post("/dashboard/update/transaction", async (req, res) => {
+  if (!token) return res.json({ error: "Invalid token found" });
+  const decode = await decodeToken(token);
+  const role = decode.role;
+  if (role != "admin") return res.json({ error: "Invalid User" });
+
+  const email = sanitize(req.body?.email);
+  const balance = Number(req.body?.balance);
+  const accType = sanitize(req.body?.type);
+
+  const result = await fetch(`${APIURL}/api/data/update/transaction`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, balance, accType }),
+  });
+
+  if (result.ok && result.result != "Could not add Transaction")
+    return res.redirect("/dashboard/transactions");
+  else
+    return res.redirect(
+      "/dashboard/transactions?error=Could+not+add+Transaction"
+    );
+});
+
+// User
+app.get("/home", (req, res) => {
+  if (!token) {
+    return res.redirect("/login?error=Invalid+Session+Found");
+  }
+  const decode = decodeToken(token);
+  const role = decode.role;
+  if (role == "admin") res.sendFile(path.join(__dirname, "views", "Dashboard", "index.html"));
+  else res.sendFile(path.join(__dirname, "views", "UI", "index.html"));
+});
+
+app.get("/forms/deposit", (req, res) => {
+  res.sendFile(path.join(__dirname, "views", "UI", "deposit.html"));
+});
+
+app.get("/forms/withdraw", (req, res) => {
+  res.sendFile(path.join(__dirname, "views", "UI", "withdraw.html"));
+});
 
 app.use((req, res) => {
   res.status(404).sendFile(path.join(__dirname, "views", "404.html"));

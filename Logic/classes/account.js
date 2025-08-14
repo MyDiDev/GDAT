@@ -13,11 +13,11 @@ export class Account {
   }
 
   async addAccount() {
-    return await addNewAccount(this.uid, this.balance, this.type);
+    return await addNewAccount(this.uid, this.balance, this.type)?.result;
   }
 
   async deleteAccount(id) {
-    return await deleteAccount(id, this.uid);
+    return await deleteAccount(id, this.uid)?.result;
   }
 
   async updateAccount(id) {

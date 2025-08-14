@@ -20,7 +20,7 @@
       rel="stylesheet"
       href="https://cdn.datatables.net/2.3.2/css/dataTables.bootstrap5.css"
     />
-    <link rel="stylesheet" href="../../public/styles.css" />
+    <link rel="stylesheet" href="../styles.css" />
     <style>
       * {
         font-family: "Google Sans Code", sans-serif;
@@ -360,7 +360,7 @@
                 ></button>
               </div>
               <div class="modal-body">
-                <form action="/dashboard/add/account" method="post">
+                <form action="/dashboard/add/account" method="POST">
                   <div class="mb-3">
                     <div class="form-floating mb-3">
                       <input
@@ -374,10 +374,10 @@
                     </div>
                     <div class="form-floating mb-3">
                       <input
-                        type="email"
+                        type="number"
                         class="form-control"
-                        name="email"
-                        id="email"
+                        name="balance"
+                        id="balance"
                       />
                       <label for="balance" class="form-label">Balance</label>
                     </div>
@@ -385,13 +385,15 @@
                       <select
                         type="number"
                         class="form-control"
-                        name="account_type"
-                        id="account_type"
+                        name="accountType"
+                        id="accountType"
                         autocomplete="off"
                       >
-                        <option value="idk">Finance Account</option>
+                        <option value="Checking Account">
+                          Checking Account
+                        </option>
                       </select>
-                      <label for="account_type" class="form-label"
+                      <label for="accountType" class="form-label"
                         >Account Type</label
                       >
                     </div>
@@ -437,6 +439,7 @@
                   id="updateForm"
                 >
                   <div class="mb-3">
+                    <input type="hidden" name="id" />
                     <div class="form-floating mb-3">
                       <input
                         type="email"
@@ -459,8 +462,8 @@
                     <div class="form-floating mb-3">
                       <select
                         class="form-control"
-                        name="account_type"
-                        id="account_type"
+                        name="accountType"
+                        id="accountType"
                         autocomplete="off"
                       >
                         <option
@@ -468,9 +471,11 @@
                           id="selectedAccountType"
                           selected
                         ></option>
-                        <option value="idk">Finance Account</option>
+                        <option value="Checking Account">
+                          Checking Account
+                        </option>
                       </select>
-                      <label for="account_type" class="form-label"
+                      <label for="accountType" class="form-label"
                         >Account Type</label
                       >
                     </div>
@@ -522,11 +527,6 @@
       </main>
     </div>
 
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
-      crossorigin="anonymous"
-    ></script>
     <script>
       const $ = (el) => document.getElementById(el);
       const sidebar = $("sideBar");
@@ -562,6 +562,7 @@
             rowData = row.data();
             const id = rowData[0];
             if (id) editBtn.disabled = false;
+            updateForm.elements["id"].value = id;
             updateForm.elements["email"].value = rowData[1];
             updateForm.elements["balance"].value = rowData[2];
             $("selectedAccountType").value = rowData[3];
@@ -588,8 +589,6 @@
         console.log(updateForm.elements["email"].value);
       });
 
-      updateForm.addEventListener("submit", (ev) => {});
-
       window.addEventListener("click", (ev) => {
         if (ev.target.tagName != "TD") {
           editBtn.disabled = true;
@@ -615,8 +614,7 @@
 
           let tableContent = "";
           const tbody = $("tbodyContent");
-
-          if (!Object.keys(accountsRegistered?.result[0][0]).length) {
+          if (Object.keys(accountsRegistered.result[0]).length > 0) {
             theadContent.innerHTML = `
             <tr>
               <th>#</th>
@@ -625,13 +623,13 @@
               <th>Account Type</th>
             </tr>
             `;
-            accountsRegistered.result[0].forEach((rowDataPacket) => {
+            accountsRegistered?.result[0].forEach((rowDataPacket) => {
               tableContent += `
             <tr>
-              <td>${rowDataPacket[0]}</td>
-              <td>${rowDataPacket[1]}</td>
-              <td>${rowDataPacket[2]}</td>
-              <td>${rowDataPacket[3]}</td>
+              <td>${rowDataPacket.id}</td>
+              <td>${rowDataPacket.email}</td>
+              <td>${rowDataPacket.amount}</td>
+              <td>${rowDataPacket.account_type}</td>
             </tr>
             `;
             });
@@ -663,6 +661,11 @@
         checkSideBarResponsive();
       });
     </script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
+      crossorigin="anonymous"
+    ></script>
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/2.3.2/js/dataTables.js"></script>
