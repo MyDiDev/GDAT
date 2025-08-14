@@ -364,7 +364,8 @@ app.post("/dashboard/update/account", async (req, res) => {
 
   if (result.ok && result.result != "Could not modify Account")
     return res.redirect("/dashboard/accounts");
-  else return res.redirect("/dashboard/accounts?error=Could+not+modify+Account");
+  else
+    return res.redirect("/dashboard/accounts?error=Could+not+modify+Account");
 });
 
 app.get("/dashboard/transactions", async (req, res) => {
@@ -430,11 +431,21 @@ app.post("/dashboard/update/transaction", async (req, res) => {
 });
 
 // User
-app.get("/forms/deposit", (err, res, req) => {
+app.get("/home", (req, res) => {
+  if (!token) {
+    return res.redirect("/login?error=Invalid+Session+Found");
+  }
+  const decode = decodeToken(token);
+  const role = decode.role;
+  if (role == "admin") res.sendFile(path.join(__dirname, "views", "Dashboard", "index.html"));
+  else res.sendFile(path.join(__dirname, "views", "UI", "index.html"));
+});
+
+app.get("/forms/deposit", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "UI", "deposit.html"));
 });
 
-app.get("/forms/withdraw", (err, res, req) => {
+app.get("/forms/withdraw", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "UI", "withdraw.html"));
 });
 
