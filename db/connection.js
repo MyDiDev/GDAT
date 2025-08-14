@@ -259,16 +259,19 @@ export async function addNewAccount(uid, balance, type) {
 
   return new Promise((resolve, reject) => {
     try {
-      if (!uid || !balance || !type) reject(new Error("User fields missing"));
+      if (!uid || !balance || !type) reject(new Error("Account fields missing"));
       conn.query(
         "CALL insert_account(?, ?, ?)",
         [uid, balance, type],
         (err, result) => {
+          console.log(uid, balance, type);
           if (err) reject(err);
+          console.log(result);
           resolve(result[0]);
         }
       );
     } catch (error) {
+      console.log("ERROR HERE")
       reject(error.message);
     }
   });

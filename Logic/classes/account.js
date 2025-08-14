@@ -21,7 +21,7 @@ export class Account {
   }
 
   async updateAccount(id) {
-    return await updateAccount(id, this.uid, this.balance, this.type)?.result;
+    return await updateAccount(id, this.uid, this.balance, this.type);
   }
 
   async get() {

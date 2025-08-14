@@ -79,9 +79,7 @@ app.post("/api/data/add/user", async (req, res) => {
   const email = sanitize(req.body?.email);
   const password = sanitize(req.body?.password);
 
-  console.log(name, email, password);
   const user = new User(name, email, password, "user");
-  console.log(user.name, user.email, user.password);
   const result = await user.addUser();
 
   if (result) res.json({ result: result });
@@ -92,11 +90,10 @@ app.post("/api/data/add/account", async (req, res) => {
   console.log(req.body);
   const email = sanitize(req.body?.email);
   const balance = Number(req.body?.balance);
-  const accountType = sanitize(req.body?.accountType);
+  const accType = sanitize(req.body?.accType);
 
   const uid = await getUserId(email, email);
-
-  const account = new Account(uid, balance, accountType);
+  const account = new Account(uid, balance, accType);
   const result = await account.addAccount();
 
   if (result) res.json({ result: result });
@@ -109,9 +106,64 @@ app.post("/api/data/add/transaction", async (req, res) => {
   const email = sanitize(req.body?.email);
   const password = sanitize(req.body?.password);
 
-  console.log(name, email, password);
   const user = new User(name, email, password, "user");
-  console.log(user.name, user.email, user.password);
+  const result = await user.addUser();
+
+  if (result) res.json({ result: result });
+  else res.json({ result: "Could not add User." });
+});
+
+app.post("/api/data/update/user", async (req, res) => {
+  console.log(req.body);
+  let id = -1;
+  try {
+    id = Number(req.body?.id);
+  } catch (error) {
+    console.error(error.message);
+    res.json({});
+  }
+
+  const name = sanitize(req.body?.name);
+  const email = sanitize(req.body?.email);
+  const password = sanitize(req.body?.password);
+
+  const user = new User(name, email, password, "user");
+  const result = await user.updateUser(id);
+
+  if (result) res.json({ result: result });
+  else res.json({ result: "Could not modify User." });
+});
+
+app.post("/api/data/update/account", async (req, res) => {
+  console.log(req.body);
+  const id = Number(req.body?.id);
+  const email = sanitize(req.body?.email);
+  const balance = Number(req.body?.balance);
+  const accType = sanitize(req.body?.accType);
+
+  const uid = await getUserId(email, email);
+  const account = new Account(uid, balance, accType);
+  const result = await account.updateAccount(id);
+  console.log(result);
+  if (result) res.json({ result: result });
+  else res.json({ result: "Could not modify Account." });
+});
+
+app.post("/api/data/update/transaction", async (req, res) => {
+  console.log(req.body);
+  let id = -1;
+  try {
+    id = Number(req.body?.id);
+  } catch (error) {
+    console.error(error.message);
+    res.json({});
+  }
+
+  const name = sanitize(req.body?.name);
+  const email = sanitize(req.body?.email);
+  const password = sanitize(req.body?.password);
+
+  const user = new User(name, email, password, "user");
   const result = await user.addUser();
 
   if (result) res.json({ result: result });
@@ -272,17 +324,18 @@ app.post("/dashboard/add/account", async (req, res) => {
   const decode = await decodeToken(token);
   const role = decode.role;
   if (role != "admin") return res.json({ error: "Invalid User" });
-
+  console.log(res.body);
+  console.log(res.query);
   const email = sanitize(req.body?.email);
   const balance = Number(req.body?.balance);
-  const type = sanitize(req.body?.accountType);
-
+  const accType = sanitize(req.body?.accountType);
+  console.log(email, balance, accType);
   const result = await fetch(`${APIURL}/api/data/add/account`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ email, balance, type }),
+    body: JSON.stringify({ email, balance, accType }),
   });
 
   if (result.ok && result.result != "Could not add Account")
@@ -295,24 +348,23 @@ app.post("/dashboard/update/account", async (req, res) => {
   const decode = await decodeToken(token);
   const role = decode.role;
   if (role != "admin") return res.json({ error: "Invalid User" });
-
   const id = Number(req.body?.id);
-  const email = sanitize(req.body?.email);
+  const email = req.body?.email;
   const balance = Number(req.body?.balance);
-  const type = sanitize(req.body?.accountType);
+  const accType = sanitize(req.body?.accountType);
 
+  console.log(email, balance, accType);
   const result = await fetch(`${APIURL}/api/data/update/account`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ id, email, balance, type }),
+    body: JSON.stringify({ id, email, balance, accType }),
   });
 
-  if (result.ok && result.result != "Could not update Account")
+  if (result.ok && result.result != "Could not modify Account")
     return res.redirect("/dashboard/accounts");
-  else
-    return res.redirect("/dashboard/accounts?error=Could+not+update+Account");
+  else return res.redirect("/dashboard/accounts?error=Could+not+modify+Account");
 });
 
 app.get("/dashboard/transactions", async (req, res) => {
@@ -333,14 +385,14 @@ app.post("/dashboard/add/transaction", async (req, res) => {
 
   const email = sanitize(req.body?.email);
   const balance = Number(req.body?.balance);
-  const type = sanitize(req.body?.accountType);
+  const accType = sanitize(req.body?.type);
 
   const result = await fetch(`${APIURL}/api/data/add/transaction`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ email, balance, type }),
+    body: JSON.stringify({ email, balance, accType }),
   });
 
   if (result.ok && result.result != "Could not add Transaction")
@@ -359,14 +411,14 @@ app.post("/dashboard/update/transaction", async (req, res) => {
 
   const email = sanitize(req.body?.email);
   const balance = Number(req.body?.balance);
-  const type = sanitize(req.body?.accountType);
+  const accType = sanitize(req.body?.type);
 
   const result = await fetch(`${APIURL}/api/data/update/transaction`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ email, balance, type }),
+    body: JSON.stringify({ email, balance, accType }),
   });
 
   if (result.ok && result.result != "Could not add Transaction")
@@ -375,6 +427,15 @@ app.post("/dashboard/update/transaction", async (req, res) => {
     return res.redirect(
       "/dashboard/transactions?error=Could+not+add+Transaction"
     );
+});
+
+// User
+app.get("/forms/deposit", (err, res, req) => {
+  res.sendFile(path.join(__dirname, "views", "UI", "deposit.html"));
+});
+
+app.get("/forms/withdraw", (err, res, req) => {
+  res.sendFile(path.join(__dirname, "views", "UI", "withdraw.html"));
 });
 
 app.use((req, res) => {
