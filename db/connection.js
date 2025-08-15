@@ -79,11 +79,12 @@ export async function authtenticateUser(name = "", email = "", password = "") {
         [name, email],
         async (err, result) => {
           if (err) reject(err);
-          console.log("Found user...");
+          if (result) console.log("Found user...");
           const passwordHash = result[0]?.password_hash;
           if (!passwordHash) reject(new Error("Invalid Password"));
           try {
             const res = await comparePassword(password, passwordHash);
+            console.log(res);
             resolve(res ? result : false);
           } catch (error) {
             resolve(false);

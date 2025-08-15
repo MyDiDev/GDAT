@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:ital,wght@0,300..800;1,300..800&display=swap"
       rel="stylesheet"
     />
     <link
@@ -16,165 +16,721 @@
       integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="../../public/styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/2.3.2/css/dataTables.bootstrap5.css"
+    />
+    <link rel="stylesheet" href="../styles.css" />
+    <style>
+      * {
+        font-family: "Google Sans Code", sans-serif;
+      }
+    </style>
   </head>
   <body class="text-white">
-    <div
-      class="d-flex justify-content-start position-sticky top-0 h-100"
-      id="sideBar"
-    >
-      <div class="d-flex justify-content-between flex-column w-100">
-        <div>
-          <div class="p-2 pt-4">
-            <h2>GDAT</h2>
-          </div>
-          <ul class="nav">
-            <li class="nav-item w-100 fs-6" id="dashLink">
-              <a
-                href="/dashboard/home"
-                class="nav-link text-decoration-none text-white d-flex align-items-center gap-3"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  class="bi bi-house-door"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z"
-                  />
-                </svg>
-                Home
-              </a>
-            </li>
-            <li class="nav-item w-100 fs-6 bg-primary">
-              <a
-                href="/dashboard/users"
-                class="nav-link text-decoration-none text-white d-flex align-items-center gap-3"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  class="bi bi-people-fill"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"
-                  />
-                </svg>
-                Users
-              </a>
-            </li>
-            <li class="nav-item w-100 fs-6" id="dashLink">
-              <a
-                href="/dashboard/accounts"
-                class="nav-link text-decoration-none text-white d-flex align-items-center gap-3"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  class="bi bi-piggy-bank"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    d="M5 6.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0m1.138-1.496A6.6 6.6 0 0 1 7.964 4.5c.666 0 1.303.097 1.893.273a.5.5 0 0 0 .286-.958A7.6 7.6 0 0 0 7.964 3.5c-.734 0-1.441.103-2.102.292a.5.5 0 1 0 .276.962"
-                  />
-                  <path
-                    fill-rule="evenodd"
-                    d="M7.964 1.527c-2.977 0-5.571 1.704-6.32 4.125h-.55A1 1 0 0 0 .11 6.824l.254 1.46a1.5 1.5 0 0 0 1.478 1.243h.263c.3.513.688.978 1.145 1.382l-.729 2.477a.5.5 0 0 0 .48.641h2a.5.5 0 0 0 .471-.332l.482-1.351c.635.173 1.31.267 2.011.267.707 0 1.388-.095 2.028-.272l.543 1.372a.5.5 0 0 0 .465.316h2a.5.5 0 0 0 .478-.645l-.761-2.506C13.81 9.895 14.5 8.559 14.5 7.069q0-.218-.02-.431c.261-.11.508-.266.705-.444.315.306.815.306.815-.417 0 .223-.5.223-.461-.026a1 1 0 0 0 .09-.255.7.7 0 0 0-.202-.645.58.58 0 0 0-.707-.098.74.74 0 0 0-.375.562c-.024.243.082.48.32.654a2 2 0 0 1-.259.153c-.534-2.664-3.284-4.595-6.442-4.595M2.516 6.26c.455-2.066 2.667-3.733 5.448-3.733 3.146 0 5.536 2.114 5.536 4.542 0 1.254-.624 2.41-1.67 3.248a.5.5 0 0 0-.165.535l.66 2.175h-.985l-.59-1.487a.5.5 0 0 0-.629-.288c-.661.23-1.39.359-2.157.359a6.6 6.6 0 0 1-2.157-.359.5.5 0 0 0-.635.304l-.525 1.471h-.979l.633-2.15a.5.5 0 0 0-.17-.534 4.65 4.65 0 0 1-1.284-1.541.5.5 0 0 0-.446-.275h-.56a.5.5 0 0 1-.492-.414l-.254-1.46h.933a.5.5 0 0 0 .488-.393m12.621-.857a.6.6 0 0 1-.098.21l-.044-.025c-.146-.09-.157-.175-.152-.223a.24.24 0 0 1 .117-.173c.049-.027.08-.021.113.012a.2.2 0 0 1 .064.199"
-                  />
-                </svg>
-                Accounts
-              </a>
-            </li>
-            <li class="nav-item w-100 fs-6" id="dashLink">
-              <a
-                href="/dashboard/transactions"
-                class="nav-link text-decoration-none text-white d-flex align-items-center gap-3"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  class="bi bi-wallet"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    d="M0 3a2 2 0 0 1 2-2h13.5a.5.5 0 0 1 0 1H15v2a1 1 0 0 1 1 1v8.5a1.5 1.5 0 0 1-1.5 1.5h-12A2.5 2.5 0 0 1 0 12.5zm1 1.732V12.5A1.5 1.5 0 0 0 2.5 14h12a.5.5 0 0 0 .5-.5V5H2a2 2 0 0 1-1-.268M1 3a1 1 0 0 0 1 1h12V2H2a1 1 0 0 0-1 1"
-                  />
-                </svg>
-                Transactions
-              </a>
-            </li>
-            <li class="nav-item w-100 fs-6" id="dashLink">
-              <a
-                href="/dashboard/alerts"
-                class="nav-link text-decoration-none text-white d-flex align-items-center gap-3"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  class="bi bi-exclamation-circle"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"
-                  />
-                  <path
-                    d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"
-                  />
-                </svg>
-                Detected Alerts
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="dashLink">
-          <a href="/profile/id?=any" class="text-decoration-none text-white">
+    <div class="d-flex gap-2 h-100">
+      <div id="sideBarContainer" class="position-sticky top-0 h-100">
+        <div id="smSideBar" style="width: 85px">
+          <div class="d-flex justify-content-start h-100">
             <div
-              class="d-flex justify-content-start align-items-center gap-2 p-3"
+              class="d-flex justify-content-between flex-column w-100"
+              style="min-height: 100dvh"
             >
-              <img
-                src="https://media.istockphoto.com/id/1337144146/vector/default-avatar-profile-icon-vector.jpg?s=612x612&w=0&k=20&c=BIbFwuv7FxTWvh5S3vB6bkT0Qv8Vn8N5Ffseq84ClGI="
-                alt="profile"
-                width="25"
-                height="25"
-                class="img-fluid rounded-circle"
-              />
-              <span>Username</span>
+              <div>
+                <div class="p-2 pb-3 pt-4">
+                  <img
+                    src="#"
+                    alt="logo-gdat"
+                    width="25"
+                    height="25"
+                    class="img-fluid"
+                  />
+                </div>
+                <ul class="nav">
+                  <li class="nav-item w-100 fs-6" id="dashLink">
+                    <a
+                      href="/dashboard/home"
+                      class="nav-link text-decoration-none text-white d-flex justify-content-center gap-3"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="25"
+                        height="25"
+                        fill="currentColor"
+                        class="bi bi-house-door"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z"
+                        />
+                      </svg>
+                    </a>
+                  </li>
+                  <li class="nav-item w-100 fs-6 bg-primary">
+                    <a
+                      href="/dashboard/users"
+                      class="nav-link text-decoration-none text-white d-flex justify-content-center gap-3"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="25"
+                        height="25"
+                        fill="currentColor"
+                        class="bi bi-people-fill"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"
+                        />
+                      </svg>
+                    </a>
+                  </li>
+                  <li class="nav-item w-100 fs-6" id="dashLink">
+                    <a
+                      href="/dashboard/accounts"
+                      class="nav-link text-decoration-none text-white d-flex justify-content-center gap-3"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="25"
+                        height="25"
+                        fill="currentColor"
+                        class="bi bi-piggy-bank"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          d="M5 6.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0m1.138-1.496A6.6 6.6 0 0 1 7.964 4.5c.666 0 1.303.097 1.893.273a.5.5 0 0 0 .286-.958A7.6 7.6 0 0 0 7.964 3.5c-.734 0-1.441.103-2.102.292a.5.5 0 1 0 .276.962"
+                        />
+                        <path
+                          fill-rule="evenodd"
+                          d="M7.964 1.527c-2.977 0-5.571 1.704-6.32 4.125h-.55A1 1 0 0 0 .11 6.824l.254 1.46a1.5 1.5 0 0 0 1.478 1.243h.263c.3.513.688.978 1.145 1.382l-.729 2.477a.5.5 0 0 0 .48.641h2a.5.5 0 0 0 .471-.332l.482-1.351c.635.173 1.31.267 2.011.267.707 0 1.388-.095 2.028-.272l.543 1.372a.5.5 0 0 0 .465.316h2a.5.5 0 0 0 .478-.645l-.761-2.506C13.81 9.895 14.5 8.559 14.5 7.069q0-.218-.02-.431c.261-.11.508-.266.705-.444.315.306.815.306.815-.417 0 .223-.5.223-.461-.026a1 1 0 0 0 .09-.255.7.7 0 0 0-.202-.645.58.58 0 0 0-.707-.098.74.74 0 0 0-.375.562c-.024.243.082.48.32.654a2 2 0 0 1-.259.153c-.534-2.664-3.284-4.595-6.442-4.595M2.516 6.26c.455-2.066 2.667-3.733 5.448-3.733 3.146 0 5.536 2.114 5.536 4.542 0 1.254-.624 2.41-1.67 3.248a.5.5 0 0 0-.165.535l.66 2.175h-.985l-.59-1.487a.5.5 0 0 0-.629-.288c-.661.23-1.39.359-2.157.359a6.6 6.6 0 0 1-2.157-.359.5.5 0 0 0-.635.304l-.525 1.471h-.979l.633-2.15a.5.5 0 0 0-.17-.534 4.65 4.65 0 0 1-1.284-1.541.5.5 0 0 0-.446-.275h-.56a.5.5 0 0 1-.492-.414l-.254-1.46h.933a.5.5 0 0 0 .488-.393m12.621-.857a.6.6 0 0 1-.098.21l-.044-.025c-.146-.09-.157-.175-.152-.223a.24.24 0 0 1 .117-.173c.049-.027.08-.021.113.012a.2.2 0 0 1 .064.199"
+                        />
+                      </svg>
+                    </a>
+                  </li>
+                  <li class="nav-item w-100 fs-6" id="dashLink">
+                    <a
+                      href="/dashboard/transactions"
+                      class="nav-link text-decoration-none d-flex justify-content-center text-white gap-3"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="25"
+                        height="25"
+                        fill="currentColor"
+                        class="bi bi-wallet"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          d="M0 3a2 2 0 0 1 2-2h13.5a.5.5 0 0 1 0 1H15v2a1 1 0 0 1 1 1v8.5a1.5 1.5 0 0 1-1.5 1.5h-12A2.5 2.5 0 0 1 0 12.5zm1 1.732V12.5A1.5 1.5 0 0 0 2.5 14h12a.5.5 0 0 0 .5-.5V5H2a2 2 0 0 1-1-.268M1 3a1 1 0 0 0 1 1h12V2H2a1 1 0 0 0-1 1"
+                        />
+                      </svg>
+                    </a>
+                  </li>
+                  <li class="nav-item w-100 fs-6" id="dashLink">
+                    <a
+                      href="/dashboard/alerts"
+                      class="nav-link text-decoration-none text-white d-flex justify-content-center gap-3"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="25"
+                        height="25"
+                        fill="currentColor"
+                        class="bi bi-exclamation-circle"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"
+                        />
+                        <path
+                          d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"
+                        />
+                      </svg>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <div id="dashLink">
+                <a
+                  href="/profile/id?=any"
+                  class="text-decoration-none text-white"
+                >
+                  <div class="d-flex justify-content-center gap-2 p-3">
+                    <img
+                      src="https://media.istockphoto.com/id/1337144146/vector/default-avatar-profile-icon-vector.jpg?s=612x612&w=0&k=20&c=BIbFwuv7FxTWvh5S3vB6bkT0Qv8Vn8N5Ffseq84ClGI="
+                      alt="profile"
+                      width="25"
+                      height="25"
+                      class="img-fluid rounded-circle"
+                    />
+                  </div>
+                </a>
+              </div>
             </div>
-          </a>
+          </div>
+        </div>
+        <div id="sideBar" class="h-100">
+          <div class="d-flex justify-content-start">
+            <div
+              class="d-flex justify-content-between flex-column"
+              style="min-height: 100dvh"
+            >
+              <div>
+                <div class="p-2 pt-4">
+                  <h2>GDAT</h2>
+                </div>
+                <ul class="nav">
+                  <li class="nav-item w-100 fs-6" id="dashLink">
+                    <a
+                      href="/dashboard/home"
+                      class="nav-link text-decoration-none text-white d-flex align-items-center gap-3"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        class="bi bi-house-door"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z"
+                        />
+                      </svg>
+                      Home
+                    </a>
+                  </li>
+                  <li class="nav-item w-100 fs-6 bg-primary">
+                    <a
+                      href="/dashboard/users"
+                      class="nav-link text-decoration-none text-white d-flex align-items-center gap-3"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        class="bi bi-people-fill"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"
+                        />
+                      </svg>
+                      Users
+                    </a>
+                  </li>
+                  <li class="nav-item w-100 fs-6" id="dashLink">
+                    <a
+                      href="/dashboard/accounts"
+                      class="nav-link text-decoration-none text-white d-flex align-items-center gap-3"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        class="bi bi-piggy-bank"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          d="M5 6.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0m1.138-1.496A6.6 6.6 0 0 1 7.964 4.5c.666 0 1.303.097 1.893.273a.5.5 0 0 0 .286-.958A7.6 7.6 0 0 0 7.964 3.5c-.734 0-1.441.103-2.102.292a.5.5 0 1 0 .276.962"
+                        />
+                        <path
+                          fill-rule="evenodd"
+                          d="M7.964 1.527c-2.977 0-5.571 1.704-6.32 4.125h-.55A1 1 0 0 0 .11 6.824l.254 1.46a1.5 1.5 0 0 0 1.478 1.243h.263c.3.513.688.978 1.145 1.382l-.729 2.477a.5.5 0 0 0 .48.641h2a.5.5 0 0 0 .471-.332l.482-1.351c.635.173 1.31.267 2.011.267.707 0 1.388-.095 2.028-.272l.543 1.372a.5.5 0 0 0 .465.316h2a.5.5 0 0 0 .478-.645l-.761-2.506C13.81 9.895 14.5 8.559 14.5 7.069q0-.218-.02-.431c.261-.11.508-.266.705-.444.315.306.815.306.815-.417 0 .223-.5.223-.461-.026a1 1 0 0 0 .09-.255.7.7 0 0 0-.202-.645.58.58 0 0 0-.707-.098.74.74 0 0 0-.375.562c-.024.243.082.48.32.654a2 2 0 0 1-.259.153c-.534-2.664-3.284-4.595-6.442-4.595M2.516 6.26c.455-2.066 2.667-3.733 5.448-3.733 3.146 0 5.536 2.114 5.536 4.542 0 1.254-.624 2.41-1.67 3.248a.5.5 0 0 0-.165.535l.66 2.175h-.985l-.59-1.487a.5.5 0 0 0-.629-.288c-.661.23-1.39.359-2.157.359a6.6 6.6 0 0 1-2.157-.359.5.5 0 0 0-.635.304l-.525 1.471h-.979l.633-2.15a.5.5 0 0 0-.17-.534 4.65 4.65 0 0 1-1.284-1.541.5.5 0 0 0-.446-.275h-.56a.5.5 0 0 1-.492-.414l-.254-1.46h.933a.5.5 0 0 0 .488-.393m12.621-.857a.6.6 0 0 1-.098.21l-.044-.025c-.146-.09-.157-.175-.152-.223a.24.24 0 0 1 .117-.173c.049-.027.08-.021.113.012a.2.2 0 0 1 .064.199"
+                        />
+                      </svg>
+                      Accounts
+                    </a>
+                  </li>
+                  <li class="nav-item w-100 fs-6" id="dashLink">
+                    <a
+                      href="/dashboard/transactions"
+                      class="nav-link text-decoration-none text-white d-flex align-items-center gap-3"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        class="bi bi-wallet"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          d="M0 3a2 2 0 0 1 2-2h13.5a.5.5 0 0 1 0 1H15v2a1 1 0 0 1 1 1v8.5a1.5 1.5 0 0 1-1.5 1.5h-12A2.5 2.5 0 0 1 0 12.5zm1 1.732V12.5A1.5 1.5 0 0 0 2.5 14h12a.5.5 0 0 0 .5-.5V5H2a2 2 0 0 1-1-.268M1 3a1 1 0 0 0 1 1h12V2H2a1 1 0 0 0-1 1"
+                        />
+                      </svg>
+                      Transactions
+                    </a>
+                  </li>
+                  <li class="nav-item w-100 fs-6" id="dashLink">
+                    <a
+                      href="/dashboard/alerts"
+                      class="nav-link text-decoration-none text-white d-flex align-items-center gap-3"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        class="bi bi-exclamation-circle"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"
+                        />
+                        <path
+                          d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"
+                        />
+                      </svg>
+                      Detected Alerts
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <div id="dashLink">
+                <a
+                  href="/profile/id?=any"
+                  class="text-decoration-none text-white"
+                >
+                  <div
+                    class="d-flex justify-content-start align-items-center gap-2 p-3"
+                  >
+                    <img
+                      src="https://media.istockphoto.com/id/1337144146/vector/default-avatar-profile-icon-vector.jpg?s=612x612&w=0&k=20&c=BIbFwuv7FxTWvh5S3vB6bkT0Qv8Vn8N5Ffseq84ClGI="
+                      alt="profile"
+                      width="25"
+                      height="25"
+                      class="img-fluid rounded-circle"
+                    />
+                    <span>Username</span>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
+      <main
+        class="container-fluid d-flex justify-content-center align-items-center flex-column h-100 p-0 m-0"
+      >
+        <button
+          id="errorModalTrigger"
+          type="button"
+          class="d-none"
+          data-bs-target="#errorModal"
+          data-bs-toggle="modal"
+        ></button>
+        <div class="modal fade" id="errorModal" tabindex="1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="fs-5">Oops and error ocurred :(</h1>
+                <button
+                  type="button"
+                  class="close-btn"
+                  data-bs-dissmiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <div class="d-flex gap-2">
+                  <p id="errorMsg"></p>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-danger"
+                  data-bs-dissmiss="modal"
+                  aria-label="Close"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal fade" id="addModal" tabindex="1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Create new Account</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dissmiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <form action="/dashboard/add/account" method="POST">
+                  <div class="mb-3">
+                    <div class="form-floating mb-3">
+                      <input
+                        type="email"
+                        class="form-control"
+                        name="email"
+                        id="email"
+                        autocomplete="off"
+                      />
+                      <label for="email" class="form-label">User email</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                      <input
+                        type="number"
+                        class="form-control"
+                        name="balance"
+                        id="balance"
+                      />
+                      <label for="balance" class="form-label">Balance</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                      <select
+                        type="number"
+                        class="form-control"
+                        name="accountType"
+                        id="accountType"
+                        autocomplete="off"
+                      >
+                        <option value="Checking Account">
+                          Checking Account
+                        </option>
+                        <option value="Savings Account">Savings Account</option>
+                        <option value="Money Market Account">
+                          Money Market Account
+                        </option>
+                        <option value="Joint Account">Joint Account</option>
+                        <option value="Business Account">
+                          Business Account
+                        </option>
+                      </select>
+                      <label for="accountType" class="form-label"
+                        >Account Type</label
+                      >
+                    </div>
+                  </div>
+                  <button class="btn btn-primary w-100 fs-6" type="submit">
+                    Create
+                  </button>
+                </form>
+              </div>
+              <div class="modal-footer"></div>
+            </div>
+          </div>
+        </div>
+
+        <button
+          id="updateModalTrigger"
+          type="button"
+          class="d-none"
+          data-bs-target="#updateModal"
+          data-bs-toggle="modal"
+        ></button>
+        <div
+          class="modal fade"
+          id="updateModal"
+          tabindex="1"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Update Account</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dissmiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <form
+                  action="/dashboard/update/account"
+                  method="post"
+                  id="updateForm"
+                >
+                  <div class="mb-3">
+                    <input type="hidden" name="id" />
+                    <div class="form-floating mb-3">
+                      <input
+                        type="email"
+                        class="form-control"
+                        name="email"
+                        id="email"
+                        autocomplete="off"
+                      />
+                      <label for="email" class="form-label">User email</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                      <input
+                        type="number"
+                        class="form-control"
+                        name="balance"
+                        id="balance"
+                      />
+                      <label for="balance" class="form-label">Balance</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                      <select
+                        class="form-control"
+                        name="accountType"
+                        id="accountType"
+                        autocomplete="off"
+                      >
+                        <option
+                          value=""
+                          id="selectedAccountType"
+                          selected
+                        ></option>
+                        <option value="Checking Account">
+                          Checking Account
+                        </option>
+                        <option value="Savings Account">Savings Account</option>
+                        <option value="Money Market Account">
+                          Money Market Account
+                        </option>
+                        <option value="Joint Account">Joint Account</option>
+                        <option value="Business Account">
+                          Business Account
+                        </option>
+                      </select>
+                      <label for="accountType" class="form-label"
+                        >Account Type</label
+                      >
+                    </div>
+                  </div>
+                  <button class="btn btn-primary w-100 fs-6" type="submit">
+                    Create
+                  </button>
+                </form>
+              </div>
+              <div class="modal-footer"></div>
+            </div>
+          </div>
+        </div>
+
+        <section class="w-100 p-3">
+          <div class="d-flex gap-2">
+            <button
+              class="btn btn-success"
+              data-bs-toggle="modal"
+              data-bs-target="#addModal"
+            >
+              Create user
+            </button>
+            <button class="btn btn-primary" disabled id="editBtn">
+              Edit user
+              <button
+                class="d-none"
+                id="editBtn"
+                data-bs-toggle="modal"
+                data-bs-target="editUser"
+              ></button>
+            </button>
+            <button class="btn btn-danger" disabled id="deleteBtn">
+              Remove user
+              <form
+                action="/dashboard/delete/user"
+                method="post"
+                class="d-none"
+                id="deleteForm"
+              >
+                <input type="hidden" name="id" value="null" />
+              </form>
+            </button>
+          </div>
+          <table
+            id="usersTable"
+            class="table table-dark table-hover table-striped"
+          >
+            <thead id="theadContent">
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Password</th>
+                <th>Role</th>
+                <th>Date Registered</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyContent"></tbody>
+          </table>
+        </section>
+      </main>
     </div>
 
-    <main
-      class="container-fluid d-flex justify-content-center align-items-center flex-column h-100 p-0 m-0"
-    ></main>
+    <script>
+      const $ = (el) => document.getElementById(el);
+      const sidebar = $("sideBar");
+      const smSideBar = $("smSideBar");
+      function checkSideBarResponsive() {
+        if (window.innerWidth <= 768) {
+          smSideBar.style.display = "block";
+          sidebar.style.display = "none";
+        } else {
+          smSideBar.style.display = "none";
+          sidebar.style.display = "block";
+        }
+      }
 
+      var datatable;
+      var rowData;
+      const errorMsg = $("errorMsg");
+      const errorModalTrigger = $("errorModalTrigger");
+      const editBtn = $("editBtn");
+      const delBtn = $("deleteBtn");
+      const delForm = $("deleteForm");
+      const updateForm = $("updateForm");
+
+      $("usersTable").addEventListener("click", (ev) => {
+        try {
+          if (!datatable) {
+            console.error("No datatable found");
+            return;
+          }
+          const tr = event.target.closest("tr");
+          if (!tr) return;
+          const row = datatable.row(tr);
+
+          if (row) {
+            rowData = row.data();
+            const id = rowData[0];
+            if (id) {
+              editBtn.disabled = false;
+              delBtn.disabled = false;
+            }
+
+            updateForm.elements["id"].value = id;
+            updateForm.elements["email"].value = rowData[1];
+            updateForm.elements["balance"].value = rowData[2];
+            $("selectedAccountType").value = rowData[3];
+            $("selectedAccountType").textContent = rowData[3];
+            return;
+          }
+          errorMsg.textContent = "Could not find valid identifier";
+          errorModalTrigger.click();
+        } catch (error) {
+          editBtn.disabled = true;
+          console.log(error.message);
+        }
+      });
+
+      editBtn.addEventListener("click", () => {
+        if (!rowData || isNaN(Number(rowData[0]))) {
+          editBtn.disabled = true;
+          errorMsg.textContent = "No valid identifier found, try selecting it.";
+          errorModalTrigger.click();
+          return;
+        }
+        const updateModalTrigger = $("updateModalTrigger");
+        updateModalTrigger.click();
+        console.log(updateForm.elements["email"].value);
+      });
+
+      delBtn.addEventListener("click", () => {
+        if (!rowData || isNaN(typeof Number(rowData[0]))) {
+          delBtn.disabled = true;
+          errorMsg.textContent = "No valid identifier found, try selecting it.";
+          errorModalTrigger.click();
+          return;
+        }
+
+        if (
+          window.confirm(
+            "Sure to delete this row? once process is done there will no come back."
+          )
+        ) {
+          delForm.elements["id"].value = rowData[0];
+          delForm.submit();
+        }
+      });
+
+      window.addEventListener("click", (ev) => {
+        if (ev.target.tagName != "TD") {
+          editBtn.disabled = true;
+          delBtn.disabled = true;
+        }
+      });
+
+      window.addEventListener("load", async (ev) => {
+        checkSideBarResponsive();
+        try {
+          const APIURL = "http://localhost:3000/api/data?table=users";
+          const response = await fetch(APIURL, {
+            method: "GET",
+          });
+          const data = response.ok ? await response.json() : null;
+          if (!data) {
+            errorMsg.textContent =
+              "Error while getting the data for the accounts registered, try again.";
+            errorModalTrigger.click();
+          }
+          const usersRegistered = data;
+          let theadContent = $("theadContent");
+
+          let tableContent = "";
+          const tbody = $("tbodyContent");
+          if (
+            Object.keys(usersRegistered.result[0]).length > 0 &&
+            usersRegistered.result[0][0]?.result != "No users registered"
+          ) {
+            usersRegistered?.result[0].forEach((rowDataPacket) => {
+              tableContent += `
+            <tr>
+              <td>${rowDataPacket.id}</td>
+              <td>${rowDataPacket.username}</td>
+              <td>${rowDataPacket.email}</td>
+              <td>${rowDataPacket.password_hash}</td>
+              <td>${rowDataPacket.user_role}</td>
+              <td>${rowDataPacket.date_registered}</td>
+            </tr>
+            `;
+            });
+          } else {
+            theadContent.innerHTML = `
+            <tr>
+              <th>#</th>
+            </tr>
+            `;
+            tableContent = `
+              <tr>
+                <td>No accounts registered</td>  
+              </tr>
+            `;
+          }
+          tbody.innerHTML = tableContent;
+          datatable = new DataTable("#usersTable", {
+            select: true,
+          });
+        } catch (error) {
+          errorMsg.textContent =
+            "Error while getting the data for the accounts registered, try again.";
+          errorModalTrigger.click();
+          console.error(error.message);
+        }
+      });
+
+      window.addEventListener("resize", (ev) => {
+        checkSideBarResponsive();
+      });
+    </script>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
       crossorigin="anonymous"
     ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-      integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.min.js"
-      integrity="sha384-7qAoOXltbVP82dhxHAUje59V5r2YsVfBafyUDxEdApLPmcdhBPg1DKg1ERo0BZlK"
-      crossorigin="anonymous"
-    ></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/2.3.2/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.3.2/js/dataTables.bootstrap5.js"></script>
   </body>
 </html>
