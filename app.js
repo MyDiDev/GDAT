@@ -58,9 +58,9 @@ app.get("/api/data", async (req, res) => {
   }
 });
 
-app.post("/api/auth", async (req, res) => {
+app.post("/api/data/auth", async (req, res) => {
   const name = sanitize(req.body?.name);
-  const email = sanitize(req.body?.email);
+  const email = sanitize(req.body?.name);
   const password = sanitize(req.body?.password);
 
   const user = new User(name, email);
@@ -69,14 +69,15 @@ app.post("/api/auth", async (req, res) => {
     if (!result) res.json({ result: false });
     else res.json({ result: true, data: result });
   } catch (error) {
-    return res.redirect("/login");
+    console.error(error.message);
+    return res.json({ result: false });
   }
 });
 
 app.post("/api/data/add/user", async (req, res) => {
   console.log(req.body);
   const name = sanitize(req.body?.name);
-  const email = sanitize(req.body?.email);
+  const email = req.body?.email;
   const password = sanitize(req.body?.password);
 
   const user = new User(name, email, password, "user");
@@ -88,7 +89,7 @@ app.post("/api/data/add/user", async (req, res) => {
 
 app.post("/api/data/add/account", async (req, res) => {
   console.log(req.body);
-  const email = sanitize(req.body?.email);
+  const email = req.body?.email;
   const balance = Number(req.body?.balance);
   const accType = sanitize(req.body?.accType);
 
@@ -103,7 +104,7 @@ app.post("/api/data/add/account", async (req, res) => {
 app.post("/api/data/add/transaction", async (req, res) => {
   console.log(req.body);
   const name = sanitize(req.body?.name);
-  const email = sanitize(req.body?.email);
+  const email = req.body?.email;
   const password = sanitize(req.body?.password);
 
   const user = new User(name, email, password, "user");
@@ -170,6 +171,45 @@ app.post("/api/data/update/transaction", async (req, res) => {
   else res.json({ result: "Could not add User." });
 });
 
+app.post("/api/data/delete/user", async (req, res) => {
+  console.log(req.body);
+  const id = Number(req.body?.id);
+  const user = new User();
+  const result = await user.deleteUser(id);
+
+  if (result) res.json({ result: result });
+  else res.json({ result: "Could not delete User." });
+});
+
+app.post("/api/data/delete/account", async (req, res) => {
+  console.log(req.body);
+  const id = Number(req.body?.id);
+  const email = req.body?.email;
+
+  const uid = await getUserId(email, email);
+  const account = new Account(uid);
+  const result = await account.deleteAccount(id);
+  if (result) res.json({ result: result });
+  else res.json({ result: "Could not delete Account." });
+});
+
+app.post("/api/data/delete/transaction", async (req, res) => {
+  console.log(req.body);
+  try {
+    const id = Number(req.body?.id);
+    const transaction = new Transactions();
+    const result = await transaction.deleteTransaction(id);
+
+    if (result) res.json({ result: result });
+    else res.json({ result: "Could not delete Transaction." });
+  } catch (error) {
+    console.error(error.message);
+    res.json({
+      result: "Could not delete Transaction cause of an unknown error",
+    });
+  }
+});
+
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "home.html"));
 });
@@ -201,12 +241,12 @@ app.post("/login/auth", async (req, res) => {
 
     const name = sanitize(req.body.name);
     const password = sanitize(req.body.password);
-    const response = await fetch(`${APIURL}/api/auth`, {
+    const response = await fetch(`${APIURL}/api/data/auth`, {
       method: "POST",
       headers: {
-        "Content-type": "application/json",
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name, name, password }),
+      body: JSON.stringify({ name, password }),
     });
     const data = await response.json();
 
@@ -306,9 +346,73 @@ app.get("/dashboard/users", async (req, res) => {
   res.sendFile(path.join(__dirname, "views", "Dashboard", "users.html"));
 });
 
-app.post("/dashboard/add/user", (req, res) => {});
+app.post("/dashboard/add/user", async (req, res) => {
+  try {
+    const name = sanitize(req.body?.name);
+    const email = req.body?.email;
+    const password = req.body?.password;
 
-app.post("/dashboard/update/user", (req, res) => {});
+    const response = await fetch(`${APIURL}/api/data/add/user`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name, email, password }),
+    });
+    const data = response.ok ? await response.json() : null;
+    if (!data)
+      return res.redirect("/dashboard/users?error=Could+Not+register+user");
+    return res.redirect("/dashboard/users");
+  } catch (error) {
+    console.error(error.message);
+    return;
+  }
+});
+
+app.post("/dashboard/update/user", async (req, res) => {
+  try {
+    const id = req.body?.id;
+    const name = sanitize(req.body?.name);
+    const email = req.body?.email;
+    const password = req.body?.password;
+
+    const response = await fetch(`${APIURL}/api/data/update/user`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id, name, email, password }),
+    });
+    const data = response.ok ? await response.json() : null;
+    if (!data)
+      return res.redirect("/dashboard/users?error=Could+Not+modify+user");
+    return res.redirect("/dashboard/users");
+  } catch (error) {
+    console.error(error.message);
+    return;
+  }
+});
+
+app.post("/dashboard/delete/user", async (req, res) => {
+  try {
+    const id = req.body?.id;
+
+    const response = await fetch(`${APIURL}/api/data/delete/user`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id }),
+    });
+    const data = response.ok ? await response.json() : null;
+    if (!data)
+      return res.redirect("/dashboard/users?error=Could+Not+delete+user");
+    return res.redirect("/dashboard/users");
+  } catch (error) {
+    console.error(error.message);
+    return;
+  }
+});
 
 app.get("/dashboard/accounts", async (req, res) => {
   if (!token) return res.json({ error: "Invalid token found" });
@@ -324,9 +428,8 @@ app.post("/dashboard/add/account", async (req, res) => {
   const decode = await decodeToken(token);
   const role = decode.role;
   if (role != "admin") return res.json({ error: "Invalid User" });
-  console.log(res.body);
-  console.log(res.query);
-  const email = sanitize(req.body?.email);
+
+  const email = req.body?.email;
   const balance = Number(req.body?.balance);
   const accType = sanitize(req.body?.accountType);
   console.log(email, balance, accType);
@@ -366,6 +469,33 @@ app.post("/dashboard/update/account", async (req, res) => {
     return res.redirect("/dashboard/accounts");
   else
     return res.redirect("/dashboard/accounts?error=Could+not+modify+Account");
+});
+
+app.post("/dashboard/delete/account", async (req, res) => {
+  try {
+    if (!token) return res.json({ error: "Invalid token found" });
+    const decode = await decodeToken(token);
+    const role = decode.role;
+    if (role != "admin") return res.json({ error: "Invalid User" });
+
+    const id = req.body?.id;
+    const email = req.body?.email;
+
+    const response = await fetch(`${APIURL}/api/data/delete/account`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id, email }),
+    });
+    const data = response.ok ? await response.json() : null;
+    if (!data)
+      return res.redirect("/dashboard/users?error=Could+Not+delete+account");
+    return res.redirect("/dashboard/accounts");
+  } catch (error) {
+    console.error(error.message);
+    return;
+  }
 });
 
 app.get("/dashboard/transactions", async (req, res) => {
@@ -430,6 +560,29 @@ app.post("/dashboard/update/transaction", async (req, res) => {
     );
 });
 
+app.post("/dashboard/delete/transaction", async (req, res) => {
+  try {
+    const id = req.body?.id;
+
+    const response = await fetch(`${APIURL}/api/data/delete/transaction`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id }),
+    });
+    const data = response.ok ? await response.json() : null;
+    if (!data)
+      return res.redirect(
+        "/dashboard/users?error=Could+Not+delete+transaction"
+      );
+    return res.redirect("/dashboard/transactions");
+  } catch (error) {
+    console.error(error.message);
+    return;
+  }
+});
+
 // User
 app.get("/home", (req, res) => {
   if (!token) {
@@ -437,15 +590,27 @@ app.get("/home", (req, res) => {
   }
   const decode = decodeToken(token);
   const role = decode.role;
-  if (role == "admin") res.sendFile(path.join(__dirname, "views", "Dashboard", "index.html"));
+  if (role == "admin") res.redirect("/dashboard");
   else res.sendFile(path.join(__dirname, "views", "UI", "index.html"));
 });
 
 app.get("/forms/deposit", (req, res) => {
+  if (!token) {
+    return res.redirect("/login?error=Invalid+Session+Found");
+  }
+  const decode = decodeToken(token);
+  const role = decode.role;
+  if (role == "admin") res.redirect("/dashboard");
   res.sendFile(path.join(__dirname, "views", "UI", "deposit.html"));
 });
 
 app.get("/forms/withdraw", (req, res) => {
+  if (!token) {
+    return res.redirect("/login?error=Invalid+Session+Found");
+  }
+  const decode = decodeToken(token);
+  const role = decode.role;
+  if (role == "admin") res.redirect("/dashboard");
   res.sendFile(path.join(__dirname, "views", "UI", "withdraw.html"));
 });
 

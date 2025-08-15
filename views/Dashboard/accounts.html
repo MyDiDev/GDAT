@@ -508,6 +508,13 @@
                 data-bs-target="editAccount"
               ></button>
             </button>
+            <button class="btn btn-primary" disabled id="deleteBtn">
+              Delete account
+              <form action="/dashboard/delete/account" method="post" class="d-none" id="deleteForm">
+                <input type="hidden" name="id" value="null">
+                <input type="hidden" name="email" value="null">
+              </form>
+            </button>
           </div>
           <table
             id="accountsTable"
@@ -546,6 +553,8 @@
       const errorMsg = $("errorMsg");
       const errorModalTrigger = $("errorModalTrigger");
       const editBtn = $("editBtn");
+      const delBtn = $("deleteBtn");
+      const delForm = $("deleteForm");
       const updateForm = $("updateForm");
 
       $("accountsTable").addEventListener("click", (ev) => {
@@ -561,7 +570,11 @@
           if (row) {
             rowData = row.data();
             const id = rowData[0];
-            if (id) editBtn.disabled = false;
+            if (id) {
+              editBtn.disabled = false;
+              delBtn.disabled = false;
+            }
+
             updateForm.elements["id"].value = id;
             updateForm.elements["email"].value = rowData[1];
             updateForm.elements["balance"].value = rowData[2];
@@ -589,9 +602,18 @@
         console.log(updateForm.elements["email"].value);
       });
 
+      delBtn.addEventListener("click", () => {
+        if (window.confirm("Sure to delete this row? once process is done there will no come back.")){
+          delForm.elements["id"].value = rowData[0];
+          delForm.elements["email"].value = rowData[1];
+          delForm.submit();
+        }
+      })
+
       window.addEventListener("click", (ev) => {
         if (ev.target.tagName != "TD") {
           editBtn.disabled = true;
+          delBtn.disabled = true;
         }
       });
 
@@ -602,13 +624,13 @@
           const response = await fetch(APIURL, {
             method: "GET",
           });
-
-          if (!response.ok) {
+          const data = response.ok ? await response.json() : null;
+          if (!data) {
             errorMsg.textContent =
               "Error while getting the data for the accounts registered, try again.";
             errorModalTrigger.click();
           }
-          const accountsRegistered = await response.json();
+          const accountsRegistered = data;
           let tableHeadingContent = "";
           let theadContent = $("theadContent");
 
