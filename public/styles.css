@@ -147,10 +147,9 @@ img {
 }
 
 #sideBar {
-  min-height: 100dvh;
   height: 100%;
-  background-color: var(--secondary-background-color);
   width: 200px;
+  background-color: var(--secondary-background-color);
 }
 
 #smSideBar {

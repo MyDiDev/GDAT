@@ -60,7 +60,7 @@ app.get("/api/data", async (req, res) => {
 
 app.post("/api/data/auth", async (req, res) => {
   const name = sanitize(req.body?.name);
-  const email = sanitize(req.body?.name);
+  const email = req.body?.name;
   const password = sanitize(req.body?.password);
 
   const user = new User(name, email);
@@ -116,16 +116,9 @@ app.post("/api/data/add/transaction", async (req, res) => {
 
 app.post("/api/data/update/user", async (req, res) => {
   console.log(req.body);
-  let id = -1;
-  try {
-    id = Number(req.body?.id);
-  } catch (error) {
-    console.error(error.message);
-    res.json({});
-  }
-
+  const id = Number(req.body?.id);
   const name = sanitize(req.body?.name);
-  const email = sanitize(req.body?.email);
+  const email = req.body?.email;
   const password = sanitize(req.body?.password);
 
   const user = new User(name, email, password, "user");
@@ -138,7 +131,7 @@ app.post("/api/data/update/user", async (req, res) => {
 app.post("/api/data/update/account", async (req, res) => {
   console.log(req.body);
   const id = Number(req.body?.id);
-  const email = sanitize(req.body?.email);
+  const email = req.body?.email;
   const balance = Number(req.body?.balance);
   const accType = sanitize(req.body?.accType);
 
@@ -152,20 +145,9 @@ app.post("/api/data/update/account", async (req, res) => {
 
 app.post("/api/data/update/transaction", async (req, res) => {
   console.log(req.body);
-  let id = -1;
-  try {
-    id = Number(req.body?.id);
-  } catch (error) {
-    console.error(error.message);
-    res.json({});
-  }
-
-  const name = sanitize(req.body?.name);
-  const email = sanitize(req.body?.email);
-  const password = sanitize(req.body?.password);
-
-  const user = new User(name, email, password, "user");
-  const result = await user.addUser();
+  const id = req.body?.id;  
+  const transaction = new Transactions();
+  const result = await transaction.updateTransaction(id);
 
   if (result) res.json({ result: result });
   else res.json({ result: "Could not add User." });
@@ -221,7 +203,7 @@ app.get("/login", async (req, res) => {
 
     const role = decode?.role;
     if (role == "admin") {
-      res.redirect("/dashboard");
+      res.redirect("/dashboard/home");
       return;
     }
     return res.redirect("/home");
@@ -235,7 +217,7 @@ app.post("/login/auth", async (req, res) => {
     if (token) {
       const decode = await decodeToken(token);
       const role = decode.role;
-      if (role == "admin") return res.redirect("/dashboard");
+      if (role == "admin") return res.redirect("/dashboard/home");
       else return res.redirect("/home");
     }
 
@@ -265,7 +247,7 @@ app.post("/login/auth", async (req, res) => {
         console.error("Invalid token, try login process again");
         return res.redirect("/login?error=Invalid+Session+Try+again");
       }
-      if (user.role == "admin") return res.redirect("/dashboard");
+      if (user.role == "admin") return res.redirect("/dashboard/home");
       return res.redirect("/home");
     } else {
       console.log("Failed login, redirecting...");
@@ -283,7 +265,7 @@ app.get("/register", async (req, res) => {
     const decode = await decodeToken(token);
     const role = decode.role;
     if (role == "admin") {
-      res.redirect("/dashboard");
+      res.redirect("/dashboard/home");
       return;
     }
     res.redirect("/home");
@@ -297,7 +279,7 @@ app.post("/register/add", async (req, res) => {
     const decode = await decodeToken(token);
     const role = decode.role;
     if (role == "admin") {
-      return res.redirect("/dashboard");
+      return res.redirect("/dashboard/home");
     }
     return res.redirect("/home");
   }
@@ -326,7 +308,7 @@ app.post("/register/add", async (req, res) => {
   }
 });
 
-app.get("/dashboard", async (req, res) => {
+app.get("/dashboard/home", async (req, res) => {
   if (!token)
     return res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
   const decode = await decodeToken(token);
@@ -451,6 +433,7 @@ app.post("/dashboard/update/account", async (req, res) => {
   const decode = await decodeToken(token);
   const role = decode.role;
   if (role != "admin") return res.json({ error: "Invalid User" });
+  
   const id = Number(req.body?.id);
   const email = req.body?.email;
   const balance = Number(req.body?.balance);
@@ -590,7 +573,7 @@ app.get("/home", (req, res) => {
   }
   const decode = decodeToken(token);
   const role = decode.role;
-  if (role == "admin") res.redirect("/dashboard");
+  if (role == "admin") res.redirect("/dashboard/home");
   else res.sendFile(path.join(__dirname, "views", "UI", "index.html"));
 });
 
@@ -600,7 +583,7 @@ app.get("/forms/deposit", (req, res) => {
   }
   const decode = decodeToken(token);
   const role = decode.role;
-  if (role == "admin") res.redirect("/dashboard");
+  if (role == "admin") res.redirect("/dashboard/home");
   res.sendFile(path.join(__dirname, "views", "UI", "deposit.html"));
 });
 
@@ -610,7 +593,7 @@ app.get("/forms/withdraw", (req, res) => {
   }
   const decode = decodeToken(token);
   const role = decode.role;
-  if (role == "admin") res.redirect("/dashboard");
+  if (role == "admin") res.redirect("/dashboard/home");
   res.sendFile(path.join(__dirname, "views", "UI", "withdraw.html"));
 });
 

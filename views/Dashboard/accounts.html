@@ -392,6 +392,14 @@
                         <option value="Checking Account">
                           Checking Account
                         </option>
+                        <option value="Savings Account">Savings Account</option>
+                        <option value="Money Market Account">
+                          Money Market Account
+                        </option>
+                        <option value="Joint Account">Joint Account</option>
+                        <option value="Business Account">
+                          Business Account
+                        </option>
                       </select>
                       <label for="accountType" class="form-label"
                         >Account Type</label
@@ -474,6 +482,14 @@
                         <option value="Checking Account">
                           Checking Account
                         </option>
+                        <option value="Savings Account">Savings Account</option>
+                        <option value="Money Market Account">
+                          Money Market Account
+                        </option>
+                        <option value="Joint Account">Joint Account</option>
+                        <option value="Business Account">
+                          Business Account
+                        </option>
                       </select>
                       <label for="accountType" class="form-label"
                         >Account Type</label
@@ -510,9 +526,14 @@
             </button>
             <button class="btn btn-primary" disabled id="deleteBtn">
               Delete account
-              <form action="/dashboard/delete/account" method="post" class="d-none" id="deleteForm">
-                <input type="hidden" name="id" value="null">
-                <input type="hidden" name="email" value="null">
+              <form
+                action="/dashboard/delete/account"
+                method="post"
+                class="d-none"
+                id="deleteForm"
+              >
+                <input type="hidden" name="id" value="null" />
+                <input type="hidden" name="email" value="null" />
               </form>
             </button>
           </div>
@@ -591,7 +612,7 @@
       });
 
       editBtn.addEventListener("click", () => {
-        if (!rowData) {
+        if (!rowData || isNaN(Number(rowData[0]))) {
           editBtn.disabled = true;
           errorMsg.textContent = "No valid identifier found, try selecting it.";
           errorModalTrigger.click();
@@ -603,12 +624,23 @@
       });
 
       delBtn.addEventListener("click", () => {
-        if (window.confirm("Sure to delete this row? once process is done there will no come back.")){
+        if (!rowData || isNaN(typeof Number(rowData[0]))) {
+          delBtn.disabled = true;
+          errorMsg.textContent = "No valid identifier found, try selecting it.";
+          errorModalTrigger.click();
+          return;
+        }
+
+        if (
+          window.confirm(
+            "Sure to delete this row? once process is done there will no come back."
+          )
+        ) {
           delForm.elements["id"].value = rowData[0];
           delForm.elements["email"].value = rowData[1];
           delForm.submit();
         }
-      })
+      });
 
       window.addEventListener("click", (ev) => {
         if (ev.target.tagName != "TD") {
@@ -631,20 +663,14 @@
             errorModalTrigger.click();
           }
           const accountsRegistered = data;
-          let tableHeadingContent = "";
           let theadContent = $("theadContent");
 
           let tableContent = "";
           const tbody = $("tbodyContent");
-          if (Object.keys(accountsRegistered.result[0]).length > 0) {
-            theadContent.innerHTML = `
-            <tr>
-              <th>#</th>
-              <th>User Email</th>
-              <th>Balance</th>
-              <th>Account Type</th>
-            </tr>
-            `;
+          if (
+            Object.keys(accountsRegistered.result[0]).length > 0 &&
+            accountsRegistered.result[0][0]?.result != "No accounts registered"
+          ) {
             accountsRegistered?.result[0].forEach((rowDataPacket) => {
               tableContent += `
             <tr>
@@ -661,7 +687,7 @@
               <th>#</th>
             </tr>
             `;
-            tableContent += `
+            tableContent = `
               <tr>
                 <td>No accounts registered</td>  
               </tr>

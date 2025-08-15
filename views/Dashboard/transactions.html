@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:ital,wght@0,300..800;1,300..800&display=swap"
       rel="stylesheet"
     />
     <link
@@ -24,7 +24,12 @@
       rel="stylesheet"
       href="https://cdn.datatables.net/2.3.2/css/dataTables.bootstrap5.css"
     />
-    <link rel="stylesheet" href="../../public/styles.css" />
+    <link rel="stylesheet" href="../styles.css" />
+    <style>
+      * {
+        font-family: "Google Sans Code", sans-serif;
+      }
+    </style>
   </head>
   <body class="text-white">
     <div class="d-flex gap-2 h-100">
@@ -322,27 +327,265 @@
       <main
         class="container-fluid d-flex justify-content-center align-items-center flex-column h-100 p-0 m-0"
       >
+        <button
+          id="errorModalTrigger"
+          type="button"
+          class="d-none"
+          data-bs-target="#errorModal"
+          data-bs-toggle="modal"
+        ></button>
+        <div class="modal fade" id="errorModal" tabindex="1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="fs-5">Oops and error ocurred :(</h1>
+                <button
+                  type="button"
+                  class="close-btn"
+                  data-bs-dissmiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <div class="d-flex gap-2">
+                  <p id="errorMsg"></p>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-danger"
+                  data-bs-dissmiss="modal"
+                  aria-label="Close"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- <div class="modal fade" id="addModal" tabindex="1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Create new Account</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dissmiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <form action="/dashboard/add/account" method="POST">
+                  <div class="mb-3">
+                    <div class="form-floating mb-3">
+                      <input
+                        class="form-control"
+                        name="account_id"
+                        id="account_id"
+                        autocomplete="off"
+                      >
+                      <label for="account_id" class="form-label"
+                        >Account ID</label
+                      >
+                    </div>
+                    <div class="form-floating mb-3">
+                      <textarea
+                        class="form-control"
+                        name="description"
+                        id="description"
+                        autocomplete="off"
+                      ></textarea>
+                      <label for="description" class="form-label"
+                        >Description</label
+                      >
+                    </div>
+                    <div class="form-floating mb-3">
+                      <input
+                        type="number"
+                        class="form-control"
+                        name="amount"
+                        id="amount"
+                      />
+                      <label for="amount" class="form-label">Amount</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                      <select
+                        class="form-control"
+                        name="state"
+                        id="state"
+                        autocomplete="off"
+                      >
+                        <option value="Completed">Completed</option>
+                        <option value="On Queque">On Queque</option>
+                        <option value="Blocked">Blocked</option>
+                      </select>
+                      <label for="state" class="form-label">State</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                      <select
+                        class="form-control"
+                        name="type"
+                        id="type"
+                        autocomplete="off"
+                      >
+                        <option value="Deposit">Deposit</option>
+                        <option value="Withdraw">Withdraw</option>
+                      </select>
+                      <label for="type" class="form-label">State</label>
+                    </div>
+                  </div>
+                  <button class="btn btn-primary w-100 fs-6" type="submit">
+                    Create
+                  </button>
+                </form>
+              </div>
+              <div class="modal-footer"></div>
+            </div>
+          </div>
+        </div> -->
+
+        <button
+          id="updateModalTrigger"
+          type="button"
+          class="d-none"
+          data-bs-target="#updateModal"
+          data-bs-toggle="modal"
+        ></button>
+        <div
+          class="modal fade"
+          id="updateModal"
+          tabindex="1"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Update Account</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dissmiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <form
+                  action="/dashboard/update/account"
+                  method="post"
+                  id="updateForm"
+                >
+                  <div class="mb-3">
+                    <input type="hidden" name="id" />
+                    <div class="form-floating mb-3">
+                      <textarea
+                        class="form-control"
+                        name="description"
+                        id="description"
+                        autocomplete="off"
+                      ></textarea>
+                      <label for="description" class="form-label"
+                        >Description</label
+                      >
+                    </div>
+                    <div class="form-floating mb-3">
+                      <input
+                        type="number"
+                        class="form-control"
+                        name="amount"
+                        id="amount"
+                      />
+                      <label for="amount" class="form-label">Amount</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                      <select
+                        class="form-control"
+                        name="state"
+                        id="state"
+                        autocomplete="off"
+                      >
+                        <option id="selectedState" selected></option>
+                        <option value="Completed">Completed</option>
+                        <option value="On Queque">On Queque</option>
+                        <option value="Blocked">Blocked</option>
+                      </select>
+                      <label for="state" class="form-label"
+                        >State of the transaction</label
+                      >
+                    </div>
+                    <div class="form-floating mb-3">
+                      <select
+                        class="form-control"
+                        name="type"
+                        id="type"
+                        autocomplete="off"
+                      >
+                        <option id="selectedType" selected></option>
+                        <option value="Deposit">Deposit</option>
+                        <option value="Withdraw">Withdraw</option>
+                      </select>
+                      <label for="Type" class="form-label"
+                        >Type of the transaction</label
+                      >
+                    </div>
+                  </div>
+                  <button class="btn btn-primary w-100 fs-6" type="submit">
+                    Create
+                  </button>
+                </form>
+              </div>
+              <div class="modal-footer"></div>
+            </div>
+          </div>
+        </div>
+
         <section class="w-100 p-3">
+          <div class="d-flex gap-2">
+            <!-- <button
+              class="btn btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#addModal"
+            >
+              Create transaction
+            </button> -->
+            <button class="btn btn-primary" disabled id="editBtn">
+              Edit transaction
+              <button
+                class="d-none"
+                id="editBtn"
+                data-bs-toggle="modal"
+                data-bs-target="editTransaction"
+              ></button>
+            </button>
+            <button class="btn btn-primary" disabled id="deleteBtn">
+              Delete transaction
+              <form
+                action="/dashboard/delete/transaction"
+                method="post"
+                class="d-none"
+                id="deleteForm"
+              >
+                <input type="hidden" name="id" value="null" />
+              </form>
+            </button>
+          </div>
           <table
             id="transactionsTable"
-            class="table table-dark table-striped table-dark"
+            class="table table-dark table-hover table-striped"
           >
-            <thead>
+            <thead id="theadContent">
               <tr>
                 <th>#</th>
+                <th>Account ID</th>
                 <th>Description</th>
-                <th>Amount</th>
                 <th>State</th>
+                <th>Transaction Type</th>
+                <th>Date</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>1</td>
-                <td>Transaction to Prove</td>
-                <td>5000.0 $USD</td>
-                <td>On Queque</td>
-              </tr>
-            </tbody>
+            <tbody id="tbodyContent"></tbody>
           </table>
         </section>
       </main>
@@ -361,33 +604,160 @@
           sidebar.style.display = "block";
         }
       }
-      window.addEventListener("load", (ev) => {
+
+      var datatable;
+      var rowData;
+      const errorMsg = $("errorMsg");
+      const errorModalTrigger = $("errorModalTrigger");
+      const editBtn = $("editBtn");
+      const delBtn = $("deleteBtn");
+      const delForm = $("deleteForm");
+      const updateForm = $("updateForm");
+
+      $("transactionsTable").addEventListener("click", (ev) => {
+        try {
+          if (!datatable) {
+            console.error("No datatable found");
+            return;
+          }
+          const tr = event.target.closest("tr");
+          if (!tr) return;
+          const row = datatable.row(tr);
+
+          if (row) {
+            rowData = row.data();
+            const id = rowData[0];
+            if (id) {
+              editBtn.disabled = false;
+              delBtn.disabled = false;
+            }
+
+            updateForm.elements["id"].value = id;
+            updateForm.elements["description"].value = rowData[1];
+            updateForm.elements["amount"].value = rowData[2];
+            $("selectedState").value = rowData[3];
+            $("selectedState").textContent = rowData[3];
+            $("selectedType").value = rowData[4];
+            $("selectedType").textContent = rowData[4];
+            return;
+          }
+          errorMsg.textContent = "Could not find valid identifier";
+          errorModalTrigger.click();
+        } catch (error) {
+          editBtn.disabled = true;
+          console.log(error.message);
+        }
+      });
+
+      editBtn.addEventListener("click", () => {
+        if (!rowData || isNaN(typeof Number(rowData[0]))) {
+          editBtn.disabled = true;
+          errorMsg.textContent = "No valid identifier found, try selecting it.";
+          errorModalTrigger.click();
+          return;
+        }
+        const updateModalTrigger = $("updateModalTrigger");
+        updateModalTrigger.click();
+        console.log(updateForm.elements["email"].value);
+      });
+
+      delBtn.addEventListener("click", () => {
+        if (!rowData || isNaN(Number(rowData[0]))) {
+          delBtn.disabled = true;
+          errorMsg.textContent = "No valid identifier found, try selecting it.";
+          errorModalTrigger.click();
+          return;
+        }
+
+        if (
+          window.confirm(
+            "Sure to delete this row? once process is done there will be no come back."
+          )
+        ) {
+          delForm.elements["id"].value = rowData[0];
+          delForm.submit();
+        }
+      });
+
+      window.addEventListener("click", (ev) => {
+        if (ev.target.tagName != "TD") {
+          editBtn.disabled = true;
+          delBtn.disabled = true;
+        }
+      });
+
+      window.addEventListener("load", async (ev) => {
         checkSideBarResponsive();
-        new DataTable("#transactionsTable");
+        try {
+          const APIURL = "http://localhost:3000/api/data?table=transactions";
+          const response = await fetch(APIURL, {
+            method: "GET",
+          });
+          const data = response.ok ? await response.json() : null;
+          if (!data) {
+            errorMsg.textContent =
+              "Error while getting the data for the accounts registered, try again.";
+            errorModalTrigger.click();
+          }
+          const transactionsRegistered = data;
+          let tableHeadingContent = "";
+          let theadContent = $("theadContent");
+
+          let tableContent = "";
+          const tbody = $("tbodyContent");
+          if (
+            Object.keys(transactionsRegistered.result[0]).length > 0 &&
+            transactionsRegistered.result[0][0]?.result !=
+              "No transactions registered"
+          ) {
+            transactionsRegistered?.result[0].forEach((rowDataPacket) => {
+              tableContent += `
+            <tr>
+              <td>${rowDataPacket.id}</td>
+              <td>${rowDataPacket.id_account}</td>
+              <td>${rowDataPacket.description}</td>
+              <td>${rowDataPacket.state}</td>
+              <td>${rowDataPacket.transaction_type}</td>
+              <td>${rowDataPacket.date_registered}</td>
+            </tr>
+            `;
+            });
+          } else {
+            theadContent.innerHTML = `
+            <tr>
+              <th>#</th>
+            </tr>
+            `;
+            tableContent = `
+              <tr>
+                <td>No transactions registered</td>  
+              </tr>
+            `;
+          }
+          tbody.innerHTML = tableContent;
+          datatable = new DataTable("#transactionsTable", {
+            select: true,
+          });
+        } catch (error) {
+          errorMsg.textContent =
+            "Error while getting the data for the transactions registered, try again.";
+          errorModalTrigger.click();
+          console.error(error.message);
+        }
       });
 
       window.addEventListener("resize", (ev) => {
         checkSideBarResponsive();
       });
     </script>
-    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/2.3.2/js/dataTables.js"></script>
-    <script src="https://cdn.datatables.net/2.3.2/js/dataTables.bootstrap5.js"></script>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
       crossorigin="anonymous"
     ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-      integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.min.js"
-      integrity="sha384-7qAoOXltbVP82dhxHAUje59V5r2YsVfBafyUDxEdApLPmcdhBPg1DKg1ERo0BZlK"
-      crossorigin="anonymous"
-    ></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/2.3.2/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.3.2/js/dataTables.bootstrap5.js"></script>
   </body>
 </html>
