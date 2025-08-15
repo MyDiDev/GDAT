@@ -78,9 +78,10 @@ app.post("/api/data/add/user", async (req, res) => {
   console.log(req.body);
   const name = sanitize(req.body?.name);
   const email = req.body?.email;
-  const password = sanitize(req.body?.password);
+  const password = req.body?.password;
+  const role = sanitize(req.body?.role) ?? "user";
 
-  const user = new User(name, email, password, "user");
+  const user = new User(name, email, password, role);
   const result = await user.addUser();
 
   if (result) res.json({ result: result });
@@ -119,11 +120,18 @@ app.post("/api/data/update/user", async (req, res) => {
   const id = Number(req.body?.id);
   const name = sanitize(req.body?.name);
   const email = req.body?.email;
-  const password = sanitize(req.body?.password);
+  const password = req.body?.password;
+  const role = sanitize(req.body?.role);
 
-  const user = new User(name, email, password, "user");
+  let user = null;
+  if (password.length >= 60){
+    user = new User();
+    user.name = name;
+    user.email = email;
+    user.password = password;
+    user.role = role;
+  }else user = new User(name, email, password, role)
   const result = await user.updateUser(id);
-
   if (result) res.json({ result: result });
   else res.json({ result: "Could not modify User." });
 });
@@ -333,13 +341,14 @@ app.post("/dashboard/add/user", async (req, res) => {
     const name = sanitize(req.body?.name);
     const email = req.body?.email;
     const password = req.body?.password;
+    const role = sanitize(req.body?.role) ?? "user";
 
     const response = await fetch(`${APIURL}/api/data/add/user`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name, email, password }),
+      body: JSON.stringify({ name, email, password, role }),
     });
     const data = response.ok ? await response.json() : null;
     if (!data)
@@ -354,16 +363,17 @@ app.post("/dashboard/add/user", async (req, res) => {
 app.post("/dashboard/update/user", async (req, res) => {
   try {
     const id = req.body?.id;
-    const name = sanitize(req.body?.name);
+    const name = sanitize(req.body?.username);
     const email = req.body?.email;
     const password = req.body?.password;
+    const role = sanitize(req.body?.role);
 
     const response = await fetch(`${APIURL}/api/data/update/user`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id, name, email, password }),
+      body: JSON.stringify({ id, name, email, password, role }),
     });
     const data = response.ok ? await response.json() : null;
     if (!data)

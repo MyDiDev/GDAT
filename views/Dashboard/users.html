@@ -372,7 +372,19 @@
                 ></button>
               </div>
               <div class="modal-body">
-                <form action="/dashboard/add/account" method="POST">
+                <form action="/dashboard/add/user" method="POST">
+                  <div class="mb-3">
+                    <div class="form-floating mb-3">
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="name"
+                        id="name"
+                        autocomplete="off"
+                      />
+                      <label for="name" class="form-label">User name</label>
+                    </div>
+                  </div>
                   <div class="mb-3">
                     <div class="form-floating mb-3">
                       <input
@@ -384,38 +396,35 @@
                       />
                       <label for="email" class="form-label">User email</label>
                     </div>
+                  </div>
+                  <div class="mb-3">
                     <div class="form-floating mb-3">
                       <input
-                        type="number"
+                        type="password"
                         class="form-control"
-                        name="balance"
-                        id="balance"
+                        name="password"
+                        id="password"
+                        autocomplete="off"
                       />
-                      <label for="balance" class="form-label">Balance</label>
+                      <label for="password" class="form-label"
+                        >User password</label
+                      >
                     </div>
+                  </div>
+                  <div class="mb-3">
                     <div class="form-floating mb-3">
                       <select
-                        type="number"
+                        name="role"
                         class="form-control"
-                        name="accountType"
-                        id="accountType"
+                        id="role"
                         autocomplete="off"
                       >
-                        <option value="Checking Account">
-                          Checking Account
-                        </option>
-                        <option value="Savings Account">Savings Account</option>
-                        <option value="Money Market Account">
-                          Money Market Account
-                        </option>
-                        <option value="Joint Account">Joint Account</option>
-                        <option value="Business Account">
-                          Business Account
+                        <option value="user">User</option>
+                        <option value="admin">
+                          Administrator for the System
                         </option>
                       </select>
-                      <label for="accountType" class="form-label"
-                        >Account Type</label
-                      >
+                      <label for="role">User role</label>
                     </div>
                   </div>
                   <button class="btn btn-primary w-100 fs-6" type="submit">
@@ -454,12 +463,24 @@
               </div>
               <div class="modal-body">
                 <form
-                  action="/dashboard/update/account"
+                  action="/dashboard/update/user"
                   method="post"
                   id="updateForm"
                 >
+                  <input type="hidden" name="id" value="null">
                   <div class="mb-3">
-                    <input type="hidden" name="id" />
+                    <div class="form-floating mb-3">
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="username"
+                        id="username"
+                        autocomplete="off"
+                      />
+                      <label for="username" class="form-label">User name</label>
+                    </div>
+                  </div>
+                  <div class="mb-3">
                     <div class="form-floating mb-3">
                       <input
                         type="email"
@@ -470,46 +491,40 @@
                       />
                       <label for="email" class="form-label">User email</label>
                     </div>
+                  </div>
+                  <div class="mb-3">
                     <div class="form-floating mb-3">
                       <input
-                        type="number"
+                        type="password"
                         class="form-control"
-                        name="balance"
-                        id="balance"
-                      />
-                      <label for="balance" class="form-label">Balance</label>
-                    </div>
-                    <div class="form-floating mb-3">
-                      <select
-                        class="form-control"
-                        name="accountType"
-                        id="accountType"
+                        name="password"
+                        id="password"
                         autocomplete="off"
-                      >
-                        <option
-                          value=""
-                          id="selectedAccountType"
-                          selected
-                        ></option>
-                        <option value="Checking Account">
-                          Checking Account
-                        </option>
-                        <option value="Savings Account">Savings Account</option>
-                        <option value="Money Market Account">
-                          Money Market Account
-                        </option>
-                        <option value="Joint Account">Joint Account</option>
-                        <option value="Business Account">
-                          Business Account
-                        </option>
-                      </select>
-                      <label for="accountType" class="form-label"
-                        >Account Type</label
+                      />
+                      <label for="password" class="form-label"
+                        >User password</label
                       >
                     </div>
                   </div>
+                  <div class="mb-3">
+                    <div class="form-floating mb-3">
+                      <select
+                        name="role"
+                        class="form-control"
+                        id="role"
+                        autocomplete="off"
+                      >
+                        <option value="" id="selectedRole"></option>
+                        <option value="user">User</option>
+                        <option value="admin">
+                          Administrator for the System
+                        </option>
+                      </select>
+                      <label for="role">User role</label>
+                    </div>
+                  </div>
                   <button class="btn btn-primary w-100 fs-6" type="submit">
-                    Create
+                    Modify
                   </button>
                 </form>
               </div>
@@ -529,12 +544,6 @@
             </button>
             <button class="btn btn-primary" disabled id="editBtn">
               Edit user
-              <button
-                class="d-none"
-                id="editBtn"
-                data-bs-toggle="modal"
-                data-bs-target="editUser"
-              ></button>
             </button>
             <button class="btn btn-danger" disabled id="deleteBtn">
               Remove user
@@ -608,18 +617,18 @@
               editBtn.disabled = false;
               delBtn.disabled = false;
             }
-
+            delForm.elements["id"].value = id;
             updateForm.elements["id"].value = id;
-            updateForm.elements["email"].value = rowData[1];
-            updateForm.elements["balance"].value = rowData[2];
-            $("selectedAccountType").value = rowData[3];
-            $("selectedAccountType").textContent = rowData[3];
+            updateForm.elements["username"].value = rowData[1];
+            updateForm.elements["email"].value = rowData[2];
+            updateForm.elements["password"].value = rowData[3];
+            $("selectedRole").value = rowData[4];
+            $("selectedRole").textContent = rowData[4];
             return;
           }
           errorMsg.textContent = "Could not find valid identifier";
           errorModalTrigger.click();
         } catch (error) {
-          editBtn.disabled = true;
           console.log(error.message);
         }
       });
@@ -633,11 +642,10 @@
         }
         const updateModalTrigger = $("updateModalTrigger");
         updateModalTrigger.click();
-        console.log(updateForm.elements["email"].value);
       });
 
       delBtn.addEventListener("click", () => {
-        if (!rowData || isNaN(typeof Number(rowData[0]))) {
+        if (!rowData || isNaN(Number(rowData[0]))) {
           delBtn.disabled = true;
           errorMsg.textContent = "No valid identifier found, try selecting it.";
           errorModalTrigger.click();
@@ -649,7 +657,11 @@
             "Sure to delete this row? once process is done there will no come back."
           )
         ) {
-          delForm.elements["id"].value = rowData[0];
+          if (!delForm.elements["id"].value) {
+            errorMsg.textContent = "Invalid ID found, try again";
+            errorModalTrigger.click();
+            return;
+          }
           delForm.submit();
         }
       });

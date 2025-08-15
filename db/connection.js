@@ -352,6 +352,7 @@ export async function updateUser(id, name, email, password, role = "user") {
         [id, name, email, password, role],
         (err, result) => {
           if (err) reject(err);
+          console.log(id, name, email, password, role);
           resolve(result[0]);
         }
       );
