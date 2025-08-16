@@ -1,10 +1,6 @@
-import { User } from "../Logic/classes/user.js";
 import { HOST, PASSWORD, USER, DATABASE, PORT } from "./secret.js";
 import mysql from "mysql";
-import bcrypt, { compare } from "bcrypt";
-import { Account } from "../Logic/classes/account.js";
-import { Transactions } from "../logic/classes/transaction.js";
-
+import bcrypt from "bcrypt";
 let conn = null;
 
 export async function connectToDb() {
@@ -83,9 +79,7 @@ export async function authtenticateUser(name = "", email = "", password = "") {
           const passwordHash = result[0]?.password_hash;
           if (!passwordHash) reject(new Error("Invalid Password"));
           try {
-            const res = await comparePassword(password, passwordHash);
-            console.log(res);
-            resolve(res ? result : false);
+            resolve(await comparePassword(password, passwordHash) ? result : false);
           } catch (error) {
             resolve(false);
           }

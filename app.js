@@ -8,6 +8,8 @@ import { Account } from "./Logic/classes/account.js";
 import { Transactions } from "./logic/classes/transaction.js";
 import { sanitize } from "./utils/sanitizer.js";
 import { genToken, decodeToken } from "./logic/tokenizer.js";
+import { JsonWebTokenError } from "jsonwebtoken";
+import { error } from "console";
 
 const app = express();
 let token = null;
@@ -22,16 +24,19 @@ app.use(express.urlencoded());
 await connectToDb();
 
 app.get("/api/data", async (req, res) => {
-  // if (!token) {
-  //   return res.status(404).json({ error: "Invalid token to contact API" });
-  // }
-  // const decode = await decodeToken(token);
-  // console.log(decode);
-  // const role = decode?.role;
-
-  // if (role != "admin") {
-  //   return res.status(404).json({ error: "Invalid role to contact API" });
-  // }
+  if (!token) return res.status(404).json({ error: "404 Not Found" });
+  let decode = null;
+  try {
+    decode = decodeToken(token);
+  } catch (error) {
+    return res
+      .status(404)
+      .json({ error: "Session terminated, please authenticate again" });
+  }
+  if (!decode || decode?.role != "admin")
+    return res
+      .status(404)
+      .json({ error: "Invalid Session, not permitted to this route" });
 
   const table = req.query.table ?? null;
   if (!table) {
@@ -75,7 +80,20 @@ app.post("/api/data/auth", async (req, res) => {
 });
 
 app.post("/api/data/add/user", async (req, res) => {
-  console.log(req.body);
+  if (!token) return res.status(404).json({ error: "404 Not Found" });
+  let decode = null;
+  try {
+    decode = decodeToken(token);
+  } catch (error) {
+    return res
+      .status(404)
+      .json({ error: "Session terminated, please authenticate again" });
+  }
+  if (!decode || decode?.role != "admin")
+    return res
+      .status(404)
+      .json({ error: "Invalid Session, not permitted to this route" });
+
   const name = sanitize(req.body?.name);
   const email = req.body?.email;
   const password = req.body?.password;
@@ -89,7 +107,20 @@ app.post("/api/data/add/user", async (req, res) => {
 });
 
 app.post("/api/data/add/account", async (req, res) => {
-  console.log(req.body);
+  if (!token) return res.status(404).json({ error: "404 Not Found" });
+  let decode = null;
+  try {
+    decode = decodeToken(token);
+  } catch (error) {
+    return res
+      .status(404)
+      .json({ error: "Session terminated, please authenticate again" });
+  }
+  if (!decode || decode?.role != "admin")
+    return res
+      .status(404)
+      .json({ error: "Invalid Session, not permitted to this route" });
+
   const email = req.body?.email;
   const balance = Number(req.body?.balance);
   const accType = sanitize(req.body?.accType);
@@ -103,7 +134,20 @@ app.post("/api/data/add/account", async (req, res) => {
 });
 
 app.post("/api/data/add/transaction", async (req, res) => {
-  console.log(req.body);
+  if (!token) return res.status(404).json({ error: "404 Not Found" });
+  let decode = null;
+  try {
+    decode = decodeToken(token);
+  } catch (error) {
+    return res
+      .status(404)
+      .json({ error: "Session terminated, please authenticate again" });
+  }
+  if (!decode || decode?.role != "admin")
+    return res
+      .status(404)
+      .json({ error: "Invalid Session, not permitted to this route" });
+
   const name = sanitize(req.body?.name);
   const email = req.body?.email;
   const password = sanitize(req.body?.password);
@@ -116,7 +160,20 @@ app.post("/api/data/add/transaction", async (req, res) => {
 });
 
 app.post("/api/data/update/user", async (req, res) => {
-  console.log(req.body);
+  if (!token) return res.status(404).json({ error: "404 Not Found" });
+  let decode = null;
+  try {
+    decode = decodeToken(token);
+  } catch (error) {
+    return res
+      .status(404)
+      .json({ error: "Session terminated, please authenticate again" });
+  }
+  if (!decode || decode?.role != "admin")
+    return res
+      .status(404)
+      .json({ error: "Invalid Session, not permitted to this route" });
+
   const id = Number(req.body?.id);
   const name = sanitize(req.body?.name);
   const email = req.body?.email;
@@ -137,7 +194,20 @@ app.post("/api/data/update/user", async (req, res) => {
 });
 
 app.post("/api/data/update/account", async (req, res) => {
-  console.log(req.body);
+  if (!token) return res.status(404).json({ error: "404 Not Found" });
+  let decode = null;
+  try {
+    decode = decodeToken(token);
+  } catch (error) {
+    return res
+      .status(404)
+      .json({ error: "Session terminated, please authenticate again" });
+  }
+  if (!decode || decode?.role != "admin")
+    return res
+      .status(404)
+      .json({ error: "Invalid Session, not permitted to this route" });
+
   const id = Number(req.body?.id);
   const email = req.body?.email;
   const balance = Number(req.body?.balance);
@@ -152,7 +222,20 @@ app.post("/api/data/update/account", async (req, res) => {
 });
 
 app.post("/api/data/update/transaction", async (req, res) => {
-  console.log(req.body);
+  if (!token) return res.status(404).json({ error: "404 Not Found" });
+  let decode = null;
+  try {
+    decode = decodeToken(token);
+  } catch (error) {
+    return res
+      .status(404)
+      .json({ error: "Session terminated, please authenticate again" });
+  }
+  if (!decode || decode?.role != "admin")
+    return res
+      .status(404)
+      .json({ error: "Invalid Session, not permitted to this route" });
+
   const id = req.body?.id;
   const transaction = new Transactions();
   const result = await transaction.updateTransaction(id);
@@ -162,7 +245,20 @@ app.post("/api/data/update/transaction", async (req, res) => {
 });
 
 app.post("/api/data/delete/user", async (req, res) => {
-  console.log(req.body);
+  if (!token) return res.status(404).json({ error: "404 Not Found" });
+  let decode = null;
+  try {
+    decode = decodeToken(token);
+  } catch (error) {
+    return res
+      .status(404)
+      .json({ error: "Session terminated, please authenticate again" });
+  }
+  if (!decode || decode?.role != "admin")
+    return res
+      .status(404)
+      .json({ error: "Invalid Session, not permitted to this route" });
+
   const id = Number(req.body?.id);
   const user = new User();
   const result = await user.deleteUser(id);
@@ -172,7 +268,20 @@ app.post("/api/data/delete/user", async (req, res) => {
 });
 
 app.post("/api/data/delete/account", async (req, res) => {
-  console.log(req.body);
+  if (!token) return res.status(404).json({ error: "404 Not Found" });
+  let decode = null;
+  try {
+    decode = decodeToken(token);
+  } catch (error) {
+    return res
+      .status(404)
+      .json({ error: "Session terminated, please authenticate again" });
+  }
+  if (!decode || decode?.role != "admin")
+    return res
+      .status(404)
+      .json({ error: "Invalid Session, not permitted to this route" });
+
   const id = Number(req.body?.id);
   const email = req.body?.email;
 
@@ -184,7 +293,20 @@ app.post("/api/data/delete/account", async (req, res) => {
 });
 
 app.post("/api/data/delete/transaction", async (req, res) => {
-  console.log(req.body);
+  if (!token) return res.status(404).json({ error: "404 Not Found" });
+  let decode = null;
+  try {
+    decode = decodeToken(token);
+  } catch (error) {
+    return res
+      .status(404)
+      .json({ error: "Session terminated, please authenticate again" });
+  }
+  if (!decode || decode?.role != "admin")
+    return res
+      .status(404)
+      .json({ error: "Invalid Session, not permitted to this route" });
+
   try {
     const id = Number(req.body?.id);
     const transaction = new Transactions();
@@ -253,6 +375,7 @@ app.post("/login/auth", async (req, res) => {
         console.error("Invalid token, try login process again");
         return res.redirect("/login?error=Invalid+Session+Try+again");
       }
+      const data = encodeURIComponent(token);
       if (user.role == "admin") return res.redirect("/dashboard/home");
       return res.redirect("/home");
     } else {
