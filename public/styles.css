@@ -162,6 +162,10 @@ img {
   background-color: var(--primary-background-color);
 }
 
+#bgColor{
+  background-color: var(--secondary-background-color);
+}
+
 @media screen and (max-width: 600px) {
   .main-timeline::after {
     left: 31px;

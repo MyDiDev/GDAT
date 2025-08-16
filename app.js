@@ -124,13 +124,13 @@ app.post("/api/data/update/user", async (req, res) => {
   const role = sanitize(req.body?.role);
 
   let user = null;
-  if (password.length >= 60){
+  if (password.length >= 60) {
     user = new User();
     user.name = name;
     user.email = email;
     user.password = password;
     user.role = role;
-  }else user = new User(name, email, password, role)
+  } else user = new User(name, email, password, role);
   const result = await user.updateUser(id);
   if (result) res.json({ result: result });
   else res.json({ result: "Could not modify User." });
@@ -153,7 +153,7 @@ app.post("/api/data/update/account", async (req, res) => {
 
 app.post("/api/data/update/transaction", async (req, res) => {
   console.log(req.body);
-  const id = req.body?.id;  
+  const id = req.body?.id;
   const transaction = new Transactions();
   const result = await transaction.updateTransaction(id);
 
@@ -205,29 +205,27 @@ app.get("/", (req, res) => {
 });
 
 app.get("/login", async (req, res) => {
-  if (token) {
-    const decode = await decodeToken(token);
-    console.log(decode);
-
-    const role = decode?.role;
-    if (role == "admin") {
-      res.redirect("/dashboard/home");
-      return;
-    }
-    return res.redirect("/home");
-  } else {
-    res.sendFile(path.join(__dirname, "views", "login.html"));
+  if (!token) return res.json({ error: "Invalid session found" });
+  let decode = null;
+  try {
+    decode = await decodeToken(token);
+  } catch (error) {
+    return res.redirect("/login?error=Session+terminated");
   }
+  if (decode.role != "admin") return res.json({ error: "Invalid User" });
+  return res.sendFile(path.join(__dirname, "views", "login.html"));
 });
 
 app.post("/login/auth", async (req, res) => {
   try {
-    if (token) {
-      const decode = await decodeToken(token);
-      const role = decode.role;
-      if (role == "admin") return res.redirect("/dashboard/home");
-      else return res.redirect("/home");
+    if (!token) return res.json({ error: "Invalid session found" });
+    let decode = null;
+    try {
+      decode = await decodeToken(token);
+    } catch (error) {
+      return res.redirect("/login?error=Session+terminated");
     }
+    if (decode.role != "admin") return res.json({ error: "Invalid User" });
 
     const name = sanitize(req.body.name);
     const password = sanitize(req.body.password);
@@ -269,28 +267,26 @@ app.post("/login/auth", async (req, res) => {
 });
 
 app.get("/register", async (req, res) => {
-  if (token) {
-    const decode = await decodeToken(token);
-    const role = decode.role;
-    if (role == "admin") {
-      res.redirect("/dashboard/home");
-      return;
-    }
-    res.redirect("/home");
-    return;
+  if (!token) return res.json({ error: "Invalid session found" });
+  let decode = null;
+  try {
+    decode = await decodeToken(token);
+  } catch (error) {
+    return res.redirect("/login?error=Session+terminated");
   }
+  if (decode.role != "admin") return res.json({ error: "Invalid User" });
   res.sendFile(path.join(__dirname, "views", "register.html"));
 });
 
 app.post("/register/add", async (req, res) => {
-  if (token) {
-    const decode = await decodeToken(token);
-    const role = decode.role;
-    if (role == "admin") {
-      return res.redirect("/dashboard/home");
-    }
-    return res.redirect("/home");
+  if (!token) return res.json({ error: "Invalid session found" });
+  let decode = null;
+  try {
+    decode = await decodeToken(token);
+  } catch (error) {
+    return res.redirect("/login?error=Session+terminated");
   }
+  if (decode.role != "admin") return res.json({ error: "Invalid User" });
 
   try {
     const name = sanitize(req.body.name);
@@ -317,22 +313,26 @@ app.post("/register/add", async (req, res) => {
 });
 
 app.get("/dashboard/home", async (req, res) => {
-  if (!token)
-    return res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
-  const decode = await decodeToken(token);
-  const role = decode.role;
-  if (role != "admin")
-    res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
+  if (!token) return res.json({ error: "Invalid session found" });
+  let decode = null;
+  try {
+    decode = await decodeToken(token);
+  } catch (error) {
+    return res.redirect("/login?error=Session+terminated");
+  }
+  if (decode.role != "admin") return res.json({ error: "Invalid User" });
   res.sendFile(path.join(__dirname, "views", "Dashboard", "index.html"));
 });
 
 app.get("/dashboard/users", async (req, res) => {
-  if (!token)
-    return res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
-  const decode = await decodeToken(token);
-  const role = decode.role;
-  if (role != "admin")
-    return res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
+  if (!token) return res.json({ error: "Invalid session found" });
+  let decode = null;
+  try {
+    decode = await decodeToken(token);
+  } catch (error) {
+    return res.redirect("/login?error=Session+terminated");
+  }
+  if (decode.role != "admin") return res.json({ error: "Invalid User" });
   res.sendFile(path.join(__dirname, "views", "Dashboard", "users.html"));
 });
 
@@ -362,6 +362,15 @@ app.post("/dashboard/add/user", async (req, res) => {
 
 app.post("/dashboard/update/user", async (req, res) => {
   try {
+    if (!token) return res.json({ error: "Invalid session found" });
+    let decode = null;
+    try {
+      decode = await decodeToken(token);
+    } catch (error) {
+      return res.redirect("/login?error=Session+terminated");
+    }
+    if (decode.role != "admin") return res.json({ error: "Invalid User" });
+
     const id = req.body?.id;
     const name = sanitize(req.body?.username);
     const email = req.body?.email;
@@ -373,12 +382,14 @@ app.post("/dashboard/update/user", async (req, res) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id, name, email, password, role }),
+      body: JSON.stringify({ id, name, email, password, userRole }),
     });
     const data = response.ok ? await response.json() : null;
     if (!data)
       return res.redirect("/dashboard/users?error=Could+Not+modify+user");
-    return res.redirect("/dashboard/users");
+    if (decode.name == name && role == "user")
+      return res.redirect("/login?error=Administration+user+changed+to+Client");
+    else return res.redirect("/dashboard/users");
   } catch (error) {
     console.error(error.message);
     return;
@@ -387,6 +398,16 @@ app.post("/dashboard/update/user", async (req, res) => {
 
 app.post("/dashboard/delete/user", async (req, res) => {
   try {
+    if (!token) return res.json({ error: "Invalid session found" });
+    let decode = null;
+    try {
+      decode = await decodeToken(token);
+    } catch (error) {
+      return res.redirect("/login?error=Session+terminated");
+    }
+    const role = decode.role;
+    if (role != "admin") return res.json({ error: "Invalid User" });
+
     const id = req.body?.id;
 
     const response = await fetch(`${APIURL}/api/data/delete/user`, {
@@ -407,8 +428,13 @@ app.post("/dashboard/delete/user", async (req, res) => {
 });
 
 app.get("/dashboard/accounts", async (req, res) => {
-  if (!token) return res.json({ error: "Invalid token found" });
-  const decode = await decodeToken(token);
+  if (!token) return res.json({ error: "Invalid session found" });
+  let decode = null;
+  try {
+    decode = await decodeToken(token);
+  } catch (error) {
+    return res.redirect("/login?error=Session+terminated");
+  }
   const role = decode.role;
   if (role != "admin") return res.json({ error: "Invalid User" });
 
@@ -416,34 +442,41 @@ app.get("/dashboard/accounts", async (req, res) => {
 });
 
 app.post("/dashboard/add/account", async (req, res) => {
-  if (!token) return res.json({ error: "Invalid token found" });
-  const decode = await decodeToken(token);
-  const role = decode.role;
-  if (role != "admin") return res.json({ error: "Invalid User" });
+  try {
+    if (!token) return res.json({ error: "Invalid session found" });
+    const decode = await decodeToken(token);
+    const role = decode.role;
+    if (role != "admin") return res.json({ error: "Invalid User" });
 
-  const email = req.body?.email;
-  const balance = Number(req.body?.balance);
-  const accType = sanitize(req.body?.accountType);
-  console.log(email, balance, accType);
-  const result = await fetch(`${APIURL}/api/data/add/account`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email, balance, accType }),
-  });
+    const email = req.body?.email;
+    const balance = Number(req.body?.balance);
+    const accType = sanitize(req.body?.accountType);
+    console.log(email, balance, accType);
+    const result = await fetch(`${APIURL}/api/data/add/account`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, balance, accType }),
+    });
 
-  if (result.ok && result.result != "Could not add Account")
-    return res.redirect("/dashboard/accounts");
-  else return res.redirect("/dashboard/accounts?error=Could+not+add+Account");
+    if (result.ok && result.result != "Could not add Account")
+      return res.redirect("/dashboard/accounts");
+    else return res.redirect("/dashboard/accounts?error=Could+not+add+Account");
+  } catch (error) {}
 });
 
 app.post("/dashboard/update/account", async (req, res) => {
-  if (!token) return res.json({ error: "Invalid token found" });
-  const decode = await decodeToken(token);
+  if (!token) return res.json({ error: "Invalid session found" });
+  let decode = null;
+  try {
+    decode = await decodeToken(token);
+  } catch (error) {
+    return res.redirect("/login?error=Session+terminated");
+  }
   const role = decode.role;
   if (role != "admin") return res.json({ error: "Invalid User" });
-  
+
   const id = Number(req.body?.id);
   const email = req.body?.email;
   const balance = Number(req.body?.balance);
@@ -466,7 +499,7 @@ app.post("/dashboard/update/account", async (req, res) => {
 
 app.post("/dashboard/delete/account", async (req, res) => {
   try {
-    if (!token) return res.json({ error: "Invalid token found" });
+    if (!token) return res.json({ error: "Invalid session found" });
     const decode = await decodeToken(token);
     const role = decode.role;
     if (role != "admin") return res.json({ error: "Invalid User" });
@@ -492,18 +525,25 @@ app.post("/dashboard/delete/account", async (req, res) => {
 });
 
 app.get("/dashboard/transactions", async (req, res) => {
-  if (!token)
-    return res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
-  const decode = await decodeToken(token);
-  const role = decode.role;
-  if (role != "admin")
-    return res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
+  if (!token) return res.json({ error: "Invalid session found" });
+  let decode = null;
+  try {
+    decode = await decodeToken(token);
+  } catch (error) {
+    return res.redirect("/login?error=Session+terminated");
+  }
+  if (decode.role != "admin") return res.json({ error: "Invalid User" });
   res.sendFile(path.join(__dirname, "views", "Dashboard", "transactions.html"));
 });
 
 app.post("/dashboard/add/transaction", async (req, res) => {
-  if (!token) return res.json({ error: "Invalid token found" });
-  const decode = await decodeToken(token);
+  if (!token) return res.json({ error: "Invalid session found" });
+  let decode = null;
+  try {
+    decode = await decodeToken(token);
+  } catch (error) {
+    return res.redirect("/login?error=Session+terminated");
+  }
   const role = decode.role;
   if (role != "admin") return res.json({ error: "Invalid User" });
 
@@ -528,8 +568,13 @@ app.post("/dashboard/add/transaction", async (req, res) => {
 });
 
 app.post("/dashboard/update/transaction", async (req, res) => {
-  if (!token) return res.json({ error: "Invalid token found" });
-  const decode = await decodeToken(token);
+  if (!token) return res.json({ error: "Invalid session found" });
+  let decode = null;
+  try {
+    decode = await decodeToken(token);
+  } catch (error) {
+    return res.redirect("/login?error=Session+terminated");
+  }
   const role = decode.role;
   if (role != "admin") return res.json({ error: "Invalid User" });
 
@@ -555,6 +600,11 @@ app.post("/dashboard/update/transaction", async (req, res) => {
 
 app.post("/dashboard/delete/transaction", async (req, res) => {
   try {
+    if (!token) return res.json({ error: "Invalid session found" });
+    const decode = await decodeToken(token);
+    const role = decode.role;
+    if (role != "admin") return res.json({ error: "Invalid User" });
+
     const id = req.body?.id;
 
     const response = await fetch(`${APIURL}/api/data/delete/transaction`, {
@@ -578,9 +628,7 @@ app.post("/dashboard/delete/transaction", async (req, res) => {
 
 // User
 app.get("/home", (req, res) => {
-  if (!token) {
-    return res.redirect("/login?error=Invalid+Session+Found");
-  }
+  if (!token) return res.redirect("/login?error=Invalid+Session+Found");
   const decode = decodeToken(token);
   const role = decode.role;
   if (role == "admin") res.redirect("/dashboard/home");
@@ -598,6 +646,26 @@ app.get("/forms/deposit", (req, res) => {
 });
 
 app.get("/forms/withdraw", (req, res) => {
+  if (!token) {
+    return res.redirect("/login?error=Invalid+Session+Found");
+  }
+  const decode = decodeToken(token);
+  const role = decode.role;
+  if (role == "admin") res.redirect("/dashboard/home");
+  res.sendFile(path.join(__dirname, "views", "UI", "withdraw.html"));
+});
+
+app.post("/forms/deposit/new", (req, res) => {
+  if (!token) {
+    return res.redirect("/login?error=Invalid+Session+Found");
+  }
+  const decode = decodeToken(token);
+  const role = decode.role;
+  if (role == "admin") res.redirect("/dashboard/home");
+  res.sendFile(path.join(__dirname, "views", "UI", "deposit.html"));
+});
+
+app.post("/forms/withdraw/new", (req, res) => {
   if (!token) {
     return res.redirect("/login?error=Invalid+Session+Found");
   }
