@@ -509,7 +509,7 @@
         <section class="w-100 p-3">
           <div class="d-flex gap-2">
             <button
-              class="btn btn-primary"
+              class="btn btn-success"
               data-bs-toggle="modal"
               data-bs-target="#addModal"
             >
@@ -524,7 +524,7 @@
                 data-bs-target="editAccount"
               ></button>
             </button>
-            <button class="btn btn-primary" disabled id="deleteBtn">
+            <button class="btn btn-danger" disabled id="deleteBtn">
               Delete account
               <form
                 action="/dashboard/delete/account"
@@ -624,7 +624,7 @@
       });
 
       delBtn.addEventListener("click", () => {
-        if (!rowData || isNaN(typeof Number(rowData[0]))) {
+        if (!rowData || isNaN(Number(rowData[0]))) {
           delBtn.disabled = true;
           errorMsg.textContent = "No valid identifier found, try selecting it.";
           errorModalTrigger.click();
