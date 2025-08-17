@@ -18,10 +18,6 @@
     />
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css"
-    />
-    <link
-      rel="stylesheet"
       href="https://cdn.datatables.net/2.3.2/css/dataTables.bootstrap5.css"
     />
     <link rel="stylesheet" href="../styles.css" />
@@ -32,7 +28,7 @@
     </style>
   </head>
   <body class="text-white">
-    <div class="d-flex gap-2 h-100">
+    <div class="d-flex gap-2">
       <div id="sideBarContainer" class="position-sticky top-0 h-100">
         <div id="smSideBar" style="width: 85px">
           <div class="d-flex justify-content-start h-100">
@@ -89,7 +85,7 @@
                       </svg>
                     </a>
                   </li>
-                  <li class="nav-item w-100 fs-6" id="dashLink">
+                  <li class="nav-item w-100 fs-6 bg-primary">
                     <a
                       href="/dashboard/accounts"
                       class="nav-link text-decoration-none text-white d-flex justify-content-center gap-3"
@@ -99,20 +95,16 @@
                         width="25"
                         height="25"
                         fill="currentColor"
-                        class="bi bi-piggy-bank"
+                        class="bi bi-piggy-bank-fill"
                         viewBox="0 0 16 16"
                       >
                         <path
-                          d="M5 6.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0m1.138-1.496A6.6 6.6 0 0 1 7.964 4.5c.666 0 1.303.097 1.893.273a.5.5 0 0 0 .286-.958A7.6 7.6 0 0 0 7.964 3.5c-.734 0-1.441.103-2.102.292a.5.5 0 1 0 .276.962"
-                        />
-                        <path
-                          fill-rule="evenodd"
-                          d="M7.964 1.527c-2.977 0-5.571 1.704-6.32 4.125h-.55A1 1 0 0 0 .11 6.824l.254 1.46a1.5 1.5 0 0 0 1.478 1.243h.263c.3.513.688.978 1.145 1.382l-.729 2.477a.5.5 0 0 0 .48.641h2a.5.5 0 0 0 .471-.332l.482-1.351c.635.173 1.31.267 2.011.267.707 0 1.388-.095 2.028-.272l.543 1.372a.5.5 0 0 0 .465.316h2a.5.5 0 0 0 .478-.645l-.761-2.506C13.81 9.895 14.5 8.559 14.5 7.069q0-.218-.02-.431c.261-.11.508-.266.705-.444.315.306.815.306.815-.417 0 .223-.5.223-.461-.026a1 1 0 0 0 .09-.255.7.7 0 0 0-.202-.645.58.58 0 0 0-.707-.098.74.74 0 0 0-.375.562c-.024.243.082.48.32.654a2 2 0 0 1-.259.153c-.534-2.664-3.284-4.595-6.442-4.595M2.516 6.26c.455-2.066 2.667-3.733 5.448-3.733 3.146 0 5.536 2.114 5.536 4.542 0 1.254-.624 2.41-1.67 3.248a.5.5 0 0 0-.165.535l.66 2.175h-.985l-.59-1.487a.5.5 0 0 0-.629-.288c-.661.23-1.39.359-2.157.359a6.6 6.6 0 0 1-2.157-.359.5.5 0 0 0-.635.304l-.525 1.471h-.979l.633-2.15a.5.5 0 0 0-.17-.534 4.65 4.65 0 0 1-1.284-1.541.5.5 0 0 0-.446-.275h-.56a.5.5 0 0 1-.492-.414l-.254-1.46h.933a.5.5 0 0 0 .488-.393m12.621-.857a.6.6 0 0 1-.098.21l-.044-.025c-.146-.09-.157-.175-.152-.223a.24.24 0 0 1 .117-.173c.049-.027.08-.021.113.012a.2.2 0 0 1 .064.199"
+                          d="M7.964 1.527c-2.977 0-5.571 1.704-6.32 4.125h-.55A1 1 0 0 0 .11 6.824l.254 1.46a1.5 1.5 0 0 0 1.478 1.243h.263c.3.513.688.978 1.145 1.382l-.729 2.477a.5.5 0 0 0 .48.641h2a.5.5 0 0 0 .471-.332l.482-1.351c.635.173 1.31.267 2.011.267.707 0 1.388-.095 2.028-.272l.543 1.372a.5.5 0 0 0 .465.316h2a.5.5 0 0 0 .478-.645l-.761-2.506C13.81 9.895 14.5 8.559 14.5 7.069q0-.218-.02-.431c.261-.11.508-.266.705-.444.315.306.815.306.815-.417 0 .223-.5.223-.461-.026a1 1 0 0 0 .09-.255.7.7 0 0 0-.202-.645.58.58 0 0 0-.707-.098.74.74 0 0 0-.375.562c-.024.243.082.48.32.654a2 2 0 0 1-.259.153c-.534-2.664-3.284-4.595-6.442-4.595m7.173 3.876a.6.6 0 0 1-.098.21l-.044-.025c-.146-.09-.157-.175-.152-.223a.24.24 0 0 1 .117-.173c.049-.027.08-.021.113.012a.2.2 0 0 1 .064.199m-8.999-.65a.5.5 0 1 1-.276-.96A7.6 7.6 0 0 1 7.964 3.5c.763 0 1.497.11 2.18.315a.5.5 0 1 1-.287.958A6.6 6.6 0 0 0 7.964 4.5c-.64 0-1.255.09-1.826.254ZM5 6.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0"
                         />
                       </svg>
                     </a>
                   </li>
-                  <li class="nav-item w-100 fs-6 bg-primary">
+                  <li class="nav-item w-100 fs-6" id="dashLink">
                     <a
                       href="/dashboard/transactions"
                       class="nav-link text-decoration-none d-flex justify-content-center text-white gap-3"
@@ -122,14 +114,11 @@
                         width="25"
                         height="25"
                         fill="currentColor"
-                        class="bi bi-wallet-fill"
+                        class="bi bi-wallet"
                         viewBox="0 0 16 16"
                       >
                         <path
-                          d="M1.5 2A1.5 1.5 0 0 0 0 3.5v2h6a.5.5 0 0 1 .5.5c0 .253.08.644.306.958.207.288.557.542 1.194.542s.987-.254 1.194-.542C9.42 6.644 9.5 6.253 9.5 6a.5.5 0 0 1 .5-.5h6v-2A1.5 1.5 0 0 0 14.5 2z"
-                        />
-                        <path
-                          d="M16 6.5h-5.551a2.7 2.7 0 0 1-.443 1.042C9.613 8.088 8.963 8.5 8 8.5s-1.613-.412-2.006-.958A2.7 2.7 0 0 1 5.551 6.5H0v6A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5z"
+                          d="M0 3a2 2 0 0 1 2-2h13.5a.5.5 0 0 1 0 1H15v2a1 1 0 0 1 1 1v8.5a1.5 1.5 0 0 1-1.5 1.5h-12A2.5 2.5 0 0 1 0 12.5zm1 1.732V12.5A1.5 1.5 0 0 0 2.5 14h12a.5.5 0 0 0 .5-.5V5H2a2 2 0 0 1-1-.268M1 3a1 1 0 0 0 1 1h12V2H2a1 1 0 0 0-1 1"
                         />
                       </svg>
                     </a>
@@ -177,7 +166,7 @@
             </div>
           </div>
         </div>
-        <div id="sideBar">
+        <div id="sideBar" class="h-100">
           <div class="d-flex justify-content-start">
             <div
               class="d-flex justify-content-between flex-column"
@@ -228,7 +217,7 @@
                       Users
                     </a>
                   </li>
-                  <li class="nav-item w-100 fs-6" id="dashLink">
+                  <li class="nav-item w-100 fs-6 bg-primary">
                     <a
                       href="/dashboard/accounts"
                       class="nav-link text-decoration-none text-white d-flex align-items-center gap-3"
@@ -238,21 +227,17 @@
                         width="16"
                         height="16"
                         fill="currentColor"
-                        class="bi bi-piggy-bank"
+                        class="bi bi-piggy-bank-fill"
                         viewBox="0 0 16 16"
                       >
                         <path
-                          d="M5 6.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0m1.138-1.496A6.6 6.6 0 0 1 7.964 4.5c.666 0 1.303.097 1.893.273a.5.5 0 0 0 .286-.958A7.6 7.6 0 0 0 7.964 3.5c-.734 0-1.441.103-2.102.292a.5.5 0 1 0 .276.962"
-                        />
-                        <path
-                          fill-rule="evenodd"
-                          d="M7.964 1.527c-2.977 0-5.571 1.704-6.32 4.125h-.55A1 1 0 0 0 .11 6.824l.254 1.46a1.5 1.5 0 0 0 1.478 1.243h.263c.3.513.688.978 1.145 1.382l-.729 2.477a.5.5 0 0 0 .48.641h2a.5.5 0 0 0 .471-.332l.482-1.351c.635.173 1.31.267 2.011.267.707 0 1.388-.095 2.028-.272l.543 1.372a.5.5 0 0 0 .465.316h2a.5.5 0 0 0 .478-.645l-.761-2.506C13.81 9.895 14.5 8.559 14.5 7.069q0-.218-.02-.431c.261-.11.508-.266.705-.444.315.306.815.306.815-.417 0 .223-.5.223-.461-.026a1 1 0 0 0 .09-.255.7.7 0 0 0-.202-.645.58.58 0 0 0-.707-.098.74.74 0 0 0-.375.562c-.024.243.082.48.32.654a2 2 0 0 1-.259.153c-.534-2.664-3.284-4.595-6.442-4.595M2.516 6.26c.455-2.066 2.667-3.733 5.448-3.733 3.146 0 5.536 2.114 5.536 4.542 0 1.254-.624 2.41-1.67 3.248a.5.5 0 0 0-.165.535l.66 2.175h-.985l-.59-1.487a.5.5 0 0 0-.629-.288c-.661.23-1.39.359-2.157.359a6.6 6.6 0 0 1-2.157-.359.5.5 0 0 0-.635.304l-.525 1.471h-.979l.633-2.15a.5.5 0 0 0-.17-.534 4.65 4.65 0 0 1-1.284-1.541.5.5 0 0 0-.446-.275h-.56a.5.5 0 0 1-.492-.414l-.254-1.46h.933a.5.5 0 0 0 .488-.393m12.621-.857a.6.6 0 0 1-.098.21l-.044-.025c-.146-.09-.157-.175-.152-.223a.24.24 0 0 1 .117-.173c.049-.027.08-.021.113.012a.2.2 0 0 1 .064.199"
+                          d="M7.964 1.527c-2.977 0-5.571 1.704-6.32 4.125h-.55A1 1 0 0 0 .11 6.824l.254 1.46a1.5 1.5 0 0 0 1.478 1.243h.263c.3.513.688.978 1.145 1.382l-.729 2.477a.5.5 0 0 0 .48.641h2a.5.5 0 0 0 .471-.332l.482-1.351c.635.173 1.31.267 2.011.267.707 0 1.388-.095 2.028-.272l.543 1.372a.5.5 0 0 0 .465.316h2a.5.5 0 0 0 .478-.645l-.761-2.506C13.81 9.895 14.5 8.559 14.5 7.069q0-.218-.02-.431c.261-.11.508-.266.705-.444.315.306.815.306.815-.417 0 .223-.5.223-.461-.026a1 1 0 0 0 .09-.255.7.7 0 0 0-.202-.645.58.58 0 0 0-.707-.098.74.74 0 0 0-.375.562c-.024.243.082.48.32.654a2 2 0 0 1-.259.153c-.534-2.664-3.284-4.595-6.442-4.595m7.173 3.876a.6.6 0 0 1-.098.21l-.044-.025c-.146-.09-.157-.175-.152-.223a.24.24 0 0 1 .117-.173c.049-.027.08-.021.113.012a.2.2 0 0 1 .064.199m-8.999-.65a.5.5 0 1 1-.276-.96A7.6 7.6 0 0 1 7.964 3.5c.763 0 1.497.11 2.18.315a.5.5 0 1 1-.287.958A6.6 6.6 0 0 0 7.964 4.5c-.64 0-1.255.09-1.826.254ZM5 6.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0"
                         />
                       </svg>
                       Accounts
                     </a>
                   </li>
-                  <li class="nav-item w-100 fs-6 bg-primary">
+                  <li class="nav-item w-100 fs-6" id="dashLink">
                     <a
                       href="/dashboard/transactions"
                       class="nav-link text-decoration-none text-white d-flex align-items-center gap-3"
@@ -262,14 +247,11 @@
                         width="16"
                         height="16"
                         fill="currentColor"
-                        class="bi bi-wallet-fill"
+                        class="bi bi-wallet"
                         viewBox="0 0 16 16"
                       >
                         <path
-                          d="M1.5 2A1.5 1.5 0 0 0 0 3.5v2h6a.5.5 0 0 1 .5.5c0 .253.08.644.306.958.207.288.557.542 1.194.542s.987-.254 1.194-.542C9.42 6.644 9.5 6.253 9.5 6a.5.5 0 0 1 .5-.5h6v-2A1.5 1.5 0 0 0 14.5 2z"
-                        />
-                        <path
-                          d="M16 6.5h-5.551a2.7 2.7 0 0 1-.443 1.042C9.613 8.088 8.963 8.5 8 8.5s-1.613-.412-2.006-.958A2.7 2.7 0 0 1 5.551 6.5H0v6A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5z"
+                          d="M0 3a2 2 0 0 1 2-2h13.5a.5.5 0 0 1 0 1H15v2a1 1 0 0 1 1 1v8.5a1.5 1.5 0 0 1-1.5 1.5h-12A2.5 2.5 0 0 1 0 12.5zm1 1.732V12.5A1.5 1.5 0 0 0 2.5 14h12a.5.5 0 0 0 .5-.5V5H2a2 2 0 0 1-1-.268M1 3a1 1 0 0 0 1 1h12V2H2a1 1 0 0 0-1 1"
                         />
                       </svg>
                       Transactions
@@ -365,7 +347,7 @@
           </div>
         </div>
 
-        <!-- <div class="modal fade" id="addModal" tabindex="1" aria-hidden="true">
+        <div class="modal fade" id="addModal" tabindex="1" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
               <div class="modal-header">
@@ -382,59 +364,49 @@
                   <div class="mb-3">
                     <div class="form-floating mb-3">
                       <input
+                        type="email"
                         class="form-control"
-                        name="account_id"
-                        id="account_id"
+                        name="email"
+                        id="email"
                         autocomplete="off"
-                      >
-                      <label for="account_id" class="form-label"
-                        >Account ID</label
-                      >
-                    </div>
-                    <div class="form-floating mb-3">
-                      <textarea
-                        class="form-control"
-                        name="description"
-                        id="description"
-                        autocomplete="off"
-                      ></textarea>
-                      <label for="description" class="form-label"
-                        >Description</label
-                      >
+                      />
+                      <label for="email" class="form-label">User email</label>
                     </div>
                     <div class="form-floating mb-3">
                       <input
                         type="number"
                         class="form-control"
-                        name="amount"
-                        id="amount"
+                        name="balance"
+                        id="balance"
                       />
-                      <label for="amount" class="form-label">Amount</label>
+                      <label for="balance" class="form-label">Balance</label>
                     </div>
                     <div class="form-floating mb-3">
                       <select
+                        type="number"
                         class="form-control"
-                        name="state"
-                        id="state"
+                        name="accountType"
+                        id="accountType"
                         autocomplete="off"
                       >
-                        <option value="Completed">Completed</option>
-                        <option value="On Queque">On Queque</option>
-                        <option value="Blocked">Blocked</option>
+                        <option value="Checking Account">
+                          Checking Account
+                        </option>
+                        <option value="Savings Account">Savings Account</option>
+                        <option value="Money Market Account">
+                          Money Market Account
+                        </option>
+                        <option value="Joint Account">Joint Account</option>
+                        <option value="Business Account">
+                          Business Account
+                        </option>
                       </select>
-                      <label for="state" class="form-label">State</label>
+                      <label for="accountType" class="form-label"
+                        >Account Type</label
+                      >
                     </div>
-                    <div class="form-floating mb-3">
-                      <select
-                        class="form-control"
-                        name="type"
-                        id="type"
-                        autocomplete="off"
-                      >
-                        <option value="Deposit">Deposit</option>
-                        <option value="Withdraw">Withdraw</option>
-                      </select>
-                      <label for="type" class="form-label">State</label>
+                    <div>
+                      <input type="hidden" name="token" value="<%= token %>" />
                     </div>
                   </div>
                   <button class="btn btn-primary w-100 fs-6" type="submit">
@@ -445,7 +417,7 @@
               <div class="modal-footer"></div>
             </div>
           </div>
-        </div> -->
+        </div>
 
         <button
           id="updateModalTrigger"
@@ -479,56 +451,58 @@
                 >
                   <div class="mb-3">
                     <input type="hidden" name="id" />
+                    <div>
+                      <input type="hidden" name="token" value="<%= token %>" />
+                    </div>
                     <div class="form-floating mb-3">
-                      <textarea
+                      <input
+                        type="email"
                         class="form-control"
-                        name="description"
-                        id="description"
+                        name="email"
+                        id="email"
                         autocomplete="off"
-                      ></textarea>
-                      <label for="description" class="form-label"
-                        >Description</label
-                      >
+                      />
+                      <label for="email" class="form-label">User email</label>
                     </div>
                     <div class="form-floating mb-3">
                       <input
                         type="number"
                         class="form-control"
-                        name="amount"
-                        id="amount"
+                        name="balance"
+                        id="balance"
                       />
-                      <label for="amount" class="form-label">Amount</label>
+                      <label for="balance" class="form-label">Balance</label>
                     </div>
                     <div class="form-floating mb-3">
                       <select
                         class="form-control"
-                        name="state"
-                        id="state"
+                        name="accountType"
+                        id="accountType"
                         autocomplete="off"
                       >
-                        <option id="selectedState" selected></option>
-                        <option value="Completed">Completed</option>
-                        <option value="On Queque">On Queque</option>
-                        <option value="Blocked">Blocked</option>
+                        <option
+                          value=""
+                          id="selectedAccountType"
+                          selected
+                        ></option>
+                        <option value="Checking Account">
+                          Checking Account
+                        </option>
+                        <option value="Savings Account">Savings Account</option>
+                        <option value="Money Market Account">
+                          Money Market Account
+                        </option>
+                        <option value="Joint Account">Joint Account</option>
+                        <option value="Business Account">
+                          Business Account
+                        </option>
                       </select>
-                      <label for="state" class="form-label"
-                        >State of the transaction</label
+                      <label for="accountType" class="form-label"
+                        >Account Type</label
                       >
                     </div>
-                    <div class="form-floating mb-3">
-                      <select
-                        class="form-control"
-                        name="type"
-                        id="type"
-                        autocomplete="off"
-                      >
-                        <option id="selectedType" selected></option>
-                        <option value="Deposit">Deposit</option>
-                        <option value="Withdraw">Withdraw</option>
-                      </select>
-                      <label for="Type" class="form-label"
-                        >Type of the transaction</label
-                      >
+                    <div>
+                      <input type="hidden" name="token" value="<%= token %>" />
                     </div>
                   </div>
                   <button class="btn btn-primary w-100 fs-6" type="submit">
@@ -543,46 +517,46 @@
 
         <section class="w-100 p-3">
           <div class="d-flex gap-2">
-            <!-- <button
-              class="btn btn-primary"
+            <button
+              class="btn btn-success"
               data-bs-toggle="modal"
               data-bs-target="#addModal"
             >
-              Create transaction
-            </button> -->
+              Create account
+            </button>
             <button class="btn btn-primary" disabled id="editBtn">
-              Edit transaction
+              Edit account
               <button
                 class="d-none"
                 id="editBtn"
                 data-bs-toggle="modal"
-                data-bs-target="editTransaction"
+                data-bs-target="editAccount"
               ></button>
             </button>
             <button class="btn btn-danger" disabled id="deleteBtn">
-              Delete transaction
+              Delete account
               <form
-                action="/dashboard/delete/transaction"
+                action="/dashboard/delete/account"
                 method="post"
                 class="d-none"
                 id="deleteForm"
               >
                 <input type="hidden" name="id" value="null" />
+                <input type="hidden" name="email" value="null" />
+                <input type="hidden" name="token" value="<%= token %>" />
               </form>
             </button>
           </div>
           <table
-            id="transactionsTable"
+            id="accountsTable"
             class="table table-dark table-hover table-striped"
           >
             <thead id="theadContent">
               <tr>
                 <th>#</th>
-                <th>Account ID</th>
-                <th>Description</th>
-                <th>State</th>
-                <th>Transaction Type</th>
-                <th>Date</th>
+                <th>User ID</th>
+                <th>Balance</th>
+                <th>Account Type</th>
               </tr>
             </thead>
             <tbody id="tbodyContent"></tbody>
@@ -614,7 +588,7 @@
       const delForm = $("deleteForm");
       const updateForm = $("updateForm");
 
-      $("transactionsTable").addEventListener("click", (ev) => {
+      $("accountsTable").addEventListener("click", (ev) => {
         try {
           if (!datatable) {
             console.error("No datatable found");
@@ -633,12 +607,10 @@
             }
 
             updateForm.elements["id"].value = id;
-            updateForm.elements["description"].value = rowData[1];
-            updateForm.elements["amount"].value = rowData[2];
-            $("selectedState").value = rowData[3];
-            $("selectedState").textContent = rowData[3];
-            $("selectedType").value = rowData[4];
-            $("selectedType").textContent = rowData[4];
+            updateForm.elements["email"].value = rowData[1];
+            updateForm.elements["balance"].value = rowData[2];
+            $("selectedAccountType").value = rowData[3];
+            $("selectedAccountType").textContent = rowData[3];
             return;
           }
           errorMsg.textContent = "Could not find valid identifier";
@@ -650,7 +622,7 @@
       });
 
       editBtn.addEventListener("click", () => {
-        if (!rowData || isNaN(typeof Number(rowData[0]))) {
+        if (!rowData || isNaN(Number(rowData[0]))) {
           editBtn.disabled = true;
           errorMsg.textContent = "No valid identifier found, try selecting it.";
           errorModalTrigger.click();
@@ -658,7 +630,6 @@
         }
         const updateModalTrigger = $("updateModalTrigger");
         updateModalTrigger.click();
-        console.log(updateForm.elements["email"].value);
       });
 
       delBtn.addEventListener("click", () => {
@@ -671,10 +642,11 @@
 
         if (
           window.confirm(
-            "Sure to delete this row? once process is done there will be no come back."
+            "Sure to delete this row? once process is done there will no come back."
           )
         ) {
           delForm.elements["id"].value = rowData[0];
+          delForm.elements["email"].value = rowData[1];
           delForm.submit();
         }
       });
@@ -686,10 +658,14 @@
         }
       });
 
+      const getToken = () => {
+        return $("token").value;
+      };
+      const token = getToken();
       window.addEventListener("load", async (ev) => {
         checkSideBarResponsive();
         try {
-          const APIURL = "http://localhost:3000/api/data?table=transactions";
+          const APIURL = `http://localhost:3000/api/data?table=accounts&token=${token}`;
           const response = await fetch(APIURL, {
             method: "GET",
           });
@@ -699,26 +675,22 @@
               "Error while getting the data for the accounts registered, try again.";
             errorModalTrigger.click();
           }
-          const transactionsRegistered = data;
-          let tableHeadingContent = "";
+          const accountsRegistered = data;
           let theadContent = $("theadContent");
 
           let tableContent = "";
           const tbody = $("tbodyContent");
           if (
-            Object.keys(transactionsRegistered.result[0]).length > 0 &&
-            transactionsRegistered.result[0][0]?.result !=
-              "No transactions registered"
+            Object.keys(accountsRegistered.result[0]).length > 0 &&
+            accountsRegistered.result[0][0]?.result != "No accounts registered"
           ) {
-            transactionsRegistered?.result[0].forEach((rowDataPacket) => {
+            accountsRegistered?.result[0].forEach((rowDataPacket) => {
               tableContent += `
             <tr>
               <td>${rowDataPacket.id}</td>
-              <td>${rowDataPacket.id_account}</td>
-              <td>${rowDataPacket.description}</td>
-              <td>${rowDataPacket.state}</td>
-              <td>${rowDataPacket.transaction_type}</td>
-              <td>${rowDataPacket.date_registered}</td>
+              <td>${rowDataPacket.email}</td>
+              <td>${rowDataPacket.amount}</td>
+              <td>${rowDataPacket.account_type}</td>
             </tr>
             `;
             });
@@ -730,17 +702,17 @@
             `;
             tableContent = `
               <tr>
-                <td>No transactions registered</td>  
+                <td>No accounts registered</td>  
               </tr>
             `;
           }
           tbody.innerHTML = tableContent;
-          datatable = new DataTable("#transactionsTable", {
+          datatable = new DataTable("#accountsTable", {
             select: true,
           });
         } catch (error) {
           errorMsg.textContent =
-            "Error while getting the data for the transactions registered, try again.";
+            "Error while getting the data for the accounts registered, try again.";
           errorModalTrigger.click();
           console.error(error.message);
         }

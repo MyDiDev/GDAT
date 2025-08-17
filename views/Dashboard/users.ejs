@@ -321,6 +321,7 @@
       <main
         class="container-fluid d-flex justify-content-center align-items-center flex-column h-100 p-0 m-0"
       >
+        <input type="hidden" id="token" value="<%= token %>" />
         <button
           id="errorModalTrigger"
           type="button"
@@ -373,6 +374,9 @@
               </div>
               <div class="modal-body">
                 <form action="/dashboard/add/user" method="POST">
+                  <div>
+                    <input type="hidden" name="token" value="<%= token %>" />
+                  </div>
                   <div class="mb-3">
                     <div class="form-floating mb-3">
                       <input
@@ -467,7 +471,7 @@
                   method="post"
                   id="updateForm"
                 >
-                  <input type="hidden" name="id" value="null">
+                  <input type="hidden" name="id" value="null" />
                   <div class="mb-3">
                     <div class="form-floating mb-3">
                       <input
@@ -600,6 +604,11 @@
       const delForm = $("deleteForm");
       const updateForm = $("updateForm");
 
+      const getToken = () => {
+        return $("token").value;
+      };
+      const token = getToken();
+
       $("usersTable").addEventListener("click", (ev) => {
         try {
           if (!datatable) {
@@ -676,7 +685,7 @@
       window.addEventListener("load", async (ev) => {
         checkSideBarResponsive();
         try {
-          const APIURL = "http://localhost:3000/api/data?table=users";
+          const APIURL = `http://localhost:3000/api/data?table=users&token=${token}`;
           const response = await fetch(APIURL, {
             method: "GET",
           });

@@ -323,7 +323,8 @@
 
       <div class="container-fluid d-flex flex-column gap-3 h-100 mt-3">
         <div class="mb-3 mt-2">
-          <h1>Welcome Maria!</h1>
+          <h1>Welcome <%= user.name %>!</h1>
+          <input type="hidden" name="token" value="<%= token %>" />
         </div>
         <div class="row">
           <div class="col-12 col-md-6 col-lg-3 mb-1">
@@ -423,9 +424,7 @@
                     <th>Amount</th>
                   </tr>
                 </thead>
-                <tbody>
-
-                </tbody>
+                <tbody></tbody>
               </table>
             </div>
           </div>
@@ -472,6 +471,12 @@
           sidebar.style.display = "block";
         }
       }
+
+      const getToken = () => {
+        const param = new URLSearchParams(document.location.search);
+        return param.get("token");
+      };
+
       new DataTable("#table");
       new Chart($("transactionsChart"), {
         type: "line",
