@@ -32,8 +32,7 @@ export async function connectToDb() {
       if (err.code == "PROTOCOL_CONNECTION_LOST") {
         console.log("Reconnecting to DB...");
         await connectToDb();
-      }
-      else if (err.code == "ECONNRESET") {
+      } else if (err.code == "ECONNRESET") {
         console.error(
           "VPN or Proxy might be blocking the connection to the DB."
         );
@@ -79,7 +78,9 @@ export async function authtenticateUser(name = "", email = "", password = "") {
           const passwordHash = result[0]?.password_hash;
           if (!passwordHash) reject(new Error("Invalid Password"));
           try {
-            resolve(await comparePassword(password, passwordHash) ? result : false);
+            resolve(
+              (await comparePassword(password, passwordHash)) ? result : false
+            );
           } catch (error) {
             resolve(false);
           }
@@ -254,7 +255,8 @@ export async function addNewAccount(uid, balance, type) {
 
   return new Promise((resolve, reject) => {
     try {
-      if (!uid || !balance || !type) reject(new Error("Account fields missing"));
+      if (!uid || !balance || !type)
+        reject(new Error("Account fields missing"));
       conn.query(
         "CALL insert_account(?, ?, ?)",
         [uid, balance, type],
@@ -266,7 +268,7 @@ export async function addNewAccount(uid, balance, type) {
         }
       );
     } catch (error) {
-      console.log("ERROR HERE")
+      console.log("ERROR HERE");
       reject(error.message);
     }
   });
@@ -398,6 +400,20 @@ export async function updateAccount(id, uid, amount, type) {
           resolve(result[0]);
         }
       );
+    } catch (error) {
+      reject(error.message);
+    }
+  });
+}
+
+export async function getDashData(periodDays) {
+  if (!conn) await connectToDb();
+  return new Promise((resolve, reject) => {
+    try {
+      conn.query(`call get_dashboard_data(?)`, [periodDays], (err, result) => {
+        if (err) reject(err);
+        resolve(result[0]);
+      });
     } catch (error) {
       reject(error.message);
     }

@@ -309,6 +309,7 @@
       <main
         class="container-fluid d-flex justify-content-center align-items-center flex-column h-100 p-0 m-0"
       >
+        <input type="hidden" id="token" value="<%= token %>">
         <button
           id="errorModalTrigger"
           type="button"
@@ -405,9 +406,6 @@
                         >Account Type</label
                       >
                     </div>
-                    <div>
-                      <input type="hidden" name="token" value="<%= token %>" />
-                    </div>
                   </div>
                   <button class="btn btn-primary w-100 fs-6" type="submit">
                     Create
@@ -451,9 +449,6 @@
                 >
                   <div class="mb-3">
                     <input type="hidden" name="id" />
-                    <div>
-                      <input type="hidden" name="token" value="<%= token %>" />
-                    </div>
                     <div class="form-floating mb-3">
                       <input
                         type="email"
@@ -500,9 +495,6 @@
                       <label for="accountType" class="form-label"
                         >Account Type</label
                       >
-                    </div>
-                    <div>
-                      <input type="hidden" name="token" value="<%= token %>" />
                     </div>
                   </div>
                   <button class="btn btn-primary w-100 fs-6" type="submit">

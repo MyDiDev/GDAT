@@ -327,6 +327,7 @@
       <main
         class="container-fluid d-flex justify-content-center align-items-center flex-column h-100 p-0 m-0"
       >
+        <input type="hidden" id="token" value="<%= token %>" />
         <button
           id="errorModalTrigger"
           type="button"
@@ -530,9 +531,6 @@
                         >Type of the transaction</label
                       >
                     </div>
-                    <div>
-                      <input type="hidden" name="token" value="<%= token %>" />
-                    </div>
                   </div>
                   <button class="btn btn-primary w-100 fs-6" type="submit">
                     Create
@@ -616,10 +614,11 @@
       const delBtn = $("deleteBtn");
       const delForm = $("deleteForm");
       const updateForm = $("updateForm");
+
       const getToken = () => {
-        const param = new URLSearchParams(document.location.search);
-        return param.get("token");
+        return $("token").value;
       };
+      const token = getToken();
 
       $("transactionsTable").addEventListener("click", (ev) => {
         try {
@@ -696,7 +695,7 @@
       window.addEventListener("load", async (ev) => {
         checkSideBarResponsive();
         try {
-          const APIURL = "http://localhost:3000/api/data?table=transactions";
+          const APIURL = `http://localhost:3000/api/data?table=transactions&token=${token}`;
           const response = await fetch(APIURL, {
             method: "GET",
           });

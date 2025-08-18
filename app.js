@@ -63,6 +63,14 @@ app.get("/api/data", async (req, res) => {
   }
 });
 
+app.get("api/data/dashboard", async (req, res) => {
+  const token = req.body.token;
+  if (!token) return res.json({ error: "Invalid Token" });
+  const decode = decodeToken(token);
+  if (decode.role != "admin") return res.json({ error: "Invalid Token role" });
+  
+});
+
 app.post("/api/data/auth", async (req, res) => {
   const name = sanitize(req.body?.name);
   const email = req.body?.name;
@@ -420,6 +428,7 @@ app.get("/dashboard/home", async (req, res) => {
   res.status(200).render("Dashboard/index", {
     user: decode,
     token: token,
+    data: {},
   });
 });
 
