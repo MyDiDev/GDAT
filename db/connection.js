@@ -74,8 +74,14 @@ export async function authtenticateUser(name = "", email = "", password = "") {
         [name, email],
         async (err, result) => {
           if (err) reject(err);
-          if (result) console.log("Found user...");
-          const passwordHash = result[0]?.password_hash;
+          
+          let passwordHash;
+          setInterval(() => {}, 2000);
+          if (result) {
+            passwordHash = result[0]?.password_hash;
+            console.log("Found user...");
+          }
+
           if (!passwordHash) reject(new Error("Invalid Password"));
           try {
             resolve(
@@ -433,11 +439,14 @@ export async function getDashData(periodDays) {
 export async function getUserDashData(id, periodDays) {
   try {
     const dataResult = {};
-    dataResult[0] = await queryAsync("call get_user_dash_data(?, ?)", [id, periodDays]);
-    dataResult[1] = await queryAsync("CALL get_transactions_by_period_of_user(?, ?)", [
+    dataResult[0] = await queryAsync("call get_user_dash_data(?, ?)", [
       id,
       periodDays,
     ]);
+    dataResult[1] = await queryAsync(
+      "CALL get_transactions_by_period_of_user(?, ?)",
+      [id, periodDays]
+    );
 
     return dataResult;
   } catch (error) {

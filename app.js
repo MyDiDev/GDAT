@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { connectToDb, getUserId } from "./db/connection.js";
+import { connectToDb, getUserId, getDashData } from "./db/connection.js";
 import { fileURLToPath } from "url";
 import path, { dirname } from "path";
 import { User } from "./Logic/classes/user.js";
@@ -8,7 +8,6 @@ import { Account } from "./Logic/classes/account.js";
 import { Transactions } from "./logic/classes/transaction.js";
 import { sanitize } from "./utils/sanitizer.js";
 import { genToken, decodeToken } from "./logic/tokenizer.js";
-import { error } from "console";
 
 const app = express();
 let token = null;
@@ -63,12 +62,54 @@ app.get("/api/data", async (req, res) => {
   }
 });
 
-app.get("api/data/dashboard", async (req, res) => {
-  const token = req.body.token;
-  if (!token) return res.json({ error: "Invalid Token" });
-  const decode = decodeToken(token);
-  if (decode.role != "admin") return res.json({ error: "Invalid Token role" });
-  
+app.get("/api/data/dashboard", async (req, res) => {
+  const token = req.query?.token;
+  const periodDays = Number(req.query?.periodDays);
+
+  let decode;
+  try {
+    decode = await decodeToken(token);
+  } catch (error) {
+    res.status(404).json({ error: "Invalid Token" });
+  }
+
+  if (!decode || decode.role != "admin") {
+    res.status(404).json({ error: "Invalid Token" });
+    return;
+  }
+
+  if (isNaN(periodDays)) {
+    res.status(400).json({ error: "Invalid period of days" });
+    return;
+  }
+
+  const dashboardData = await getDashData(periodDays);
+  res.status(200).json({ result: dashboardData });
+});
+
+app.get("/api/data/user/dashboard", async (req, res) => {
+  const token = req.query?.token;
+  const periodDays = Number(req.query?.periodDays);
+
+  let decode;
+  try {
+    decode = await decodeToken(token);
+  } catch (error) {
+    res.status(404).json({ error: "Invalid Token" });
+  }
+
+  if (!decode || decode.role != "user") {
+    res.status(404).json({ error: "Invalid Token" });
+    return;
+  }
+
+  if (isNaN(periodDays)) {
+    res.status(400).json({ error: "Invalid period of days" });
+    return;
+  }
+  const user = new User();
+  const dashboardData = await user.getDashData(decode.id, periodDays);
+  res.status(200).json({ result: dashboardData });
 });
 
 app.post("/api/data/auth", async (req, res) => {
@@ -89,7 +130,10 @@ app.post("/api/data/auth", async (req, res) => {
 
 app.post("/api/data/add/user", async (req, res) => {
   const token = req.body?.token ?? null;
-  if (!token) return res.status(404).json({ error: "404 Not Found" });
+  if (!token) {
+    res.status(404).json({ error: "Token not found" });
+    return;
+  }
   let decode;
   try {
     decode = await decodeToken(token);
@@ -143,8 +187,10 @@ app.post("/api/data/add/transaction", async (req, res) => {
   } catch (error) {
     console.error(error.message);
   }
-  if (decode.role != "admin")
-    return res.redirect("/login?error=Invalid+Session");
+  if (decode.role != "admin") {
+    res.redirect("/login?error=Invalid+Session");
+    return;
+  }
 
   const name = sanitize(req.body?.name);
   const email = req.body?.email;
@@ -242,8 +288,10 @@ app.post("/api/data/delete/user", async (req, res) => {
   } catch (error) {
     console.error(error.message);
   }
-  if (decode.role != "admin")
-    return res.redirect("/login?error=Invalid+Session");
+  if (decode.role != "admin") {
+    res.redirect("/login?error=Invalid+Session");
+    return;
+  }
 
   const id = Number(req.body?.id);
   const user = new User();
@@ -417,18 +465,39 @@ app.post("/register/add", async (req, res) => {
 });
 
 app.get("/dashboard/home", async (req, res) => {
-  if (!token) return res.json({ error: "Invalid session found" });
+  if (!token) {
+    res.json({ error: "Invalid session found" });
+    return;
+  }
+
   let decode = null;
   try {
     decode = await decodeToken(token);
   } catch (error) {
     return res.redirect("/login?error=Session+terminated");
   }
-  if (decode.role != "admin") return res.json({ error: "Invalid User" });
+  if (decode.role != "admin") {
+    res.json({ error: "Invalid User" });
+    return;
+  }
+
+  const response = await fetch(
+    `${APIURL}/api/data/dashboard?token=${token}&periodDays=${7}`,
+    {
+      method: "GET",
+    }
+  );
+
+  if (!response.ok) {
+    res.json({
+      error: "Unable to load dashboard data, try re-entering the application",
+    });
+  }
+  const data = await response.json();
   res.status(200).render("Dashboard/index", {
     user: decode,
     token: token,
-    data: {},
+    data: data.result,
   });
 });
 
@@ -472,14 +541,20 @@ app.post("/dashboard/add/user", async (req, res) => {
 
 app.post("/dashboard/update/user", async (req, res) => {
   try {
-    if (!token) return res.json({ error: "Invalid session found" });
-    let decode = null;
+    if (!token) {
+      res.json({ error: "Invalid session found" });
+      return;
+    }
+    let decode;
     try {
       decode = await decodeToken(token);
     } catch (error) {
       return res.redirect("/login?error=Session+terminated");
     }
-    if (decode.role != "admin") return res.json({ error: "Invalid User" });
+    if (decode.role != "admin") {
+      res.json({ error: "Invalid User" });
+      return;
+    }
 
     const id = req.body?.id;
     const name = sanitize(req.body?.username);
@@ -508,7 +583,10 @@ app.post("/dashboard/update/user", async (req, res) => {
 
 app.post("/dashboard/delete/user", async (req, res) => {
   try {
-    if (!token) return res.json({ error: "Invalid session found" });
+    if (!token) {
+      res.json({ error: "Invalid session found" });
+      return;
+    }
     let decode = null;
     try {
       decode = await decodeToken(token);
@@ -741,22 +819,46 @@ app.post("/dashboard/delete/transaction", async (req, res) => {
 });
 
 // User
-app.get("/home", (req, res) => {
-  if (!token) return res.redirect("/login?error=Invalid+Session+Found");
-  const decode = decodeToken(token);
+app.get("/home", async (req, res) => {
+  if (!token) {
+    res.redirect("/login?error=Invalid+session+please+authenticate");
+    return;
+  }
+  const decode = await decodeToken(token);
   const role = decode.role;
-  if (role == "admin") res.redirect("/dashboard/home");
-  res.render("UI/index", {
+
+  if (role == "admin") {
+    res.redirect("/dashboard/home");
+    return;
+  }
+
+  const response = await fetch(
+    `${APIURL}/api/data/user/dashboard?token=${token}&periodDays=${7}`,
+    {
+      method: "GET",
+    }
+  );
+  if (!response.ok) {
+    res
+      .status(404)
+      .json({ error: "Couldn't get dashboard data, please try re-entering" });
+    return;
+  }
+
+  const data = response.json().result;
+  res.status(200).render("UI/index", {
     user: decode,
     token: token,
+    data: data,
   });
 });
 
-app.get("/forms/deposit", (req, res) => {
+app.get("/forms/deposit", async (req, res) => {
   if (!token) {
-    return res.redirect("/login?error=Invalid+Session+Found");
+    res.redirect("/login?error=Invalid+session+please+authenticate");
+    return;
   }
-  const decode = decodeToken(token);
+  const decode = await decodeToken(token);
   const role = decode.role;
   if (role == "admin") res.redirect("/dashboard/home");
   res.render("UI/deposit", {
@@ -764,11 +866,12 @@ app.get("/forms/deposit", (req, res) => {
   });
 });
 
-app.get("/forms/withdraw", (req, res) => {
+app.get("/forms/withdraw", async (req, res) => {
   if (!token) {
-    return res.redirect("/login?error=Invalid+Session+Found");
+    res.redirect("/login?error=Invalid+session+please+authenticate");
+    return;
   }
-  const decode = decodeToken(token);
+  const decode = await decodeToken(token);
   const role = decode.role;
   if (role == "admin") res.redirect("/dashboard/home");
   res.render("UI/withdraw", {
@@ -776,21 +879,23 @@ app.get("/forms/withdraw", (req, res) => {
   });
 });
 
-app.post("/forms/deposit/new", (req, res) => {
+app.post("/forms/deposit/new", async (req, res) => {
   if (!token) {
-    return res.redirect("/login?error=Invalid+Session+Found");
+    res.redirect("/login?error=Invalid+session+please+authenticate");
+    return;
   }
-  const decode = decodeToken(token);
+  const decode = await decodeToken(token);
   const role = decode.role;
   if (role == "admin") res.redirect("/dashboard/home");
   res.sendFile(path.join(__dirname, "views", "UI", "deposit.html"));
 });
 
-app.post("/forms/withdraw/new", (req, res) => {
+app.post("/forms/withdraw/new", async (req, res) => {
   if (!token) {
-    return res.redirect("/login?error=Invalid+Session+Found");
+    res.redirect("/login?error=Invalid+session+please+authenticate");
+    return;
   }
-  const decode = decodeToken(token);
+  const decode = await decodeToken(token);
   const role = decode.role;
   if (role == "admin") res.redirect("/dashboard/home");
   res.sendFile(path.join(__dirname, "views", "UI", "withdraw.html"));

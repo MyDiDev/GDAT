@@ -325,7 +325,7 @@
         <div class="mb-3 mt-2">
           <h1>Welcome <%= user.name %>!</h1>
           <input type="hidden" name="token" value="<%= token %>" />
-          <input type="hidden" name="data" value="<%= data %>" />
+          <input type="hidden" id="dashboardData" value="<%= data %>" />
         </div>
         <div class="row">
           <div class="col-12 col-md-6 col-lg-3 mb-1">
@@ -477,7 +477,7 @@
         const param = new URLSearchParams(document.location.search);
         return param.get("token");
       };
-      const dashboardData = $("data").value;
+      const dashboardData = $("dashboardData").value;
 
       new DataTable("#table");
       new Chart($("transactionsChart"), {
