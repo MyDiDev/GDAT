@@ -5,6 +5,7 @@ import {
   getUsers,
   authtenticateUser,
   getUserId,
+  getUserDashData,
 } from "../../db/connection.js";
 import bcrypt, { hashSync } from "bcrypt";
 
@@ -65,6 +66,10 @@ export class User {
 
   async getId() {
     return await getUserId(this.name, this.email);
+  }
+
+  async getDashboardData(id, periodDays) {
+    return await getUserDashData(id, periodDays);
   }
 
   generatePayload(uid) {

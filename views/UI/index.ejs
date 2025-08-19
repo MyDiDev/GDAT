@@ -35,7 +35,9 @@
             />
           </div>
           <div class="d-flex flex-column mt-2">
-            <a href="/home" class="btn btn-primary rounded-0 p-3 fw-bold fs-5">Home</a>
+            <a href="/home" class="btn btn-primary rounded-0 p-3 fw-bold fs-5"
+              >Home</a
+            >
             <a
               href="/forms/deposit"
               class="btn btn-dark rounded-0 p-3 fw-bold fs-5"
@@ -57,7 +59,10 @@
 
       <div class="container-fluid d-flex flex-column gap-3 h-100 mt-3">
         <div class="mb-3 mt-2">
-          <h1>Welcome Maria!</h1>
+          <h1>
+            Welcome <$= String(user.name).charAt(0).toUpperCase +
+            String(user.name).slice(1) %>!
+          </h1>
         </div>
         <div class="row">
           <div class="col-12 col-md-6 col-lg-3 mb-1">
@@ -100,7 +105,7 @@
                 </svg>
                 Total Transactions:
               </p>
-              <h4 class="fw-bold">none</h4>
+              <h4 class="fw-bold" id="totalTransactions">none</h4>
             </div>
           </div>
           <div class="col-12 col-md-6 col-lg-3 mb-1">
@@ -145,6 +150,7 @@
           </div>
         </div>
         <div class="row gap-1">
+          <input type="hidden" id="dashboardData" value="<%= data %>" />
           <div class="col">
             <div class="bg-body-tertiary p-2 rounded-sm shadow h-100">
               <table class="table table-striped table-hover" id="table">
@@ -157,78 +163,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>Aug 12</td>
-                    <td>Grocery Store</td>
-                    <td>Food</td>
-                    <td>-$45.20</td>
-                  </tr>
-                  <tr>
-                    <td>Aug 10</td>
-                    <td>Salary</td>
-                    <td>Income</td>
-                    <td>$2,000</td>
-                  </tr>
-                  <tr>
-                    <td>Aug 9</td>
-                    <td>Netflix</td>
-                    <td>Subscription</td>
-                    <td>-$15.20</td>
-                  </tr>
-                  <tr>
-                    <td>Aug 12</td>
-                    <td>Grocery Store</td>
-                    <td>Food</td>
-                    <td>-$45.20</td>
-                  </tr>
-                  <tr>
-                    <td>Aug 10</td>
-                    <td>Salary</td>
-                    <td>Income</td>
-                    <td>$2,000</td>
-                  </tr>
-                  <tr>
-                    <td>Aug 9</td>
-                    <td>Netflix</td>
-                    <td>Subscription</td>
-                    <td>-$15.20</td>
-                  </tr>
-                  <tr>
-                    <td>Aug 12</td>
-                    <td>Grocery Store</td>
-                    <td>Food</td>
-                    <td>-$45.20</td>
-                  </tr>
-                  <tr>
-                    <td>Aug 10</td>
-                    <td>Salary</td>
-                    <td>Income</td>
-                    <td>$2,000</td>
-                  </tr>
-                  <tr>
-                    <td>Aug 9</td>
-                    <td>Netflix</td>
-                    <td>Subscription</td>
-                    <td>-$15.20</td>
-                  </tr>
-                  <tr>
-                    <td>Aug 12</td>
-                    <td>Grocery Store</td>
-                    <td>Food</td>
-                    <td>-$45.20</td>
-                  </tr>
-                  <tr>
-                    <td>Aug 10</td>
-                    <td>Salary</td>
-                    <td>Income</td>
-                    <td>$2,000</td>
-                  </tr>
-                  <tr>
-                    <td>Aug 9</td>
-                    <td>Netflix</td>
-                    <td>Subscription</td>
-                    <td>-$15.20</td>
-                  </tr>
+                  
                 </tbody>
               </table>
             </div>

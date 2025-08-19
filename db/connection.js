@@ -406,16 +406,41 @@ export async function updateAccount(id, uid, amount, type) {
   });
 }
 
-export async function getDashData(periodDays) {
+const queryAsync = async (query, params) => {
   if (!conn) await connectToDb();
   return new Promise((resolve, reject) => {
-    try {
-      conn.query(`call get_dashboard_data(?)`, [periodDays], (err, result) => {
-        if (err) reject(err);
-        resolve(result[0]);
-      });
-    } catch (error) {
-      reject(error.message);
-    }
+    conn.query(query, params, (err, result) => {
+      if (err) reject(err);
+      resolve(result);
+    });
   });
+};
+
+export async function getDashData(periodDays) {
+  try {
+    const dataResult = {};
+    dataResult[0] = await queryAsync("call get_dash_data(?)", [periodDays]);
+    dataResult[1] = await queryAsync("CALL get_transactions_by_period(?)", [
+      periodDays,
+    ]);
+
+    return dataResult;
+  } catch (error) {
+    console.error(error.message);
+  }
+}
+
+export async function getUserDashData(id, periodDays) {
+  try {
+    const dataResult = {};
+    dataResult[0] = await queryAsync("call get_user_dash_data(?, ?)", [id, periodDays]);
+    dataResult[1] = await queryAsync("CALL get_transactions_by_period_of_user(?, ?)", [
+      id,
+      periodDays,
+    ]);
+
+    return dataResult;
+  } catch (error) {
+    console.error(error.message);
+  }
 }
