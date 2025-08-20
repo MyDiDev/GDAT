@@ -324,8 +324,18 @@
       <div class="container-fluid d-flex flex-column gap-3 h-100 mt-3">
         <div class="mb-3 mt-2">
           <h1>Welcome <%= user.name %>!</h1>
-          <input type="hidden" name="token" value="<%= token %>" />
-          <input type="hidden" id="dashboardData" value="<%= data %>" />
+          <div class="form-floating">
+            <select id="periodDays" class="form-control">
+              <option value="7">7 Days</option>
+              <option value="30">1 Month</option>
+              <option value="180">6 Months</option>
+              <option value="365">1 Year</option>
+              <option value="<% new Date().getFullYear() * 365 %>">
+                All Time
+              </option>
+            </select>
+            <label for="periodDays">Period of Time</label>
+          </div>
         </div>
         <div class="row">
           <div class="col-12 col-md-6 col-lg-3 mb-1">
@@ -345,7 +355,9 @@
                 </svg>
                 Total Users Count:
               </p>
-              <h4 class="fw-bold" id="usersCount">0</h4>
+              <h4 class="fw-bold" id="usersCount">
+                <%= data[0][0][0].users_count %>
+              </h4>
             </div>
           </div>
           <div class="col-12 col-md-6 col-lg-3 mb-1">
@@ -368,7 +380,9 @@
                 </svg>
                 Total Transactions:
               </p>
-              <h4 class="fw-bold" id="transactionsCount">0</h4>
+              <h4 class="fw-bold" id="transactionsCount">
+                <%= data[0][0][0].transactions_count %>
+              </h4>
             </div>
           </div>
           <div class="col-12 col-md-6 col-lg-3 mb-1">
@@ -388,7 +402,11 @@
                 </svg>
                 Transacts. Amount:
               </p>
+              <% if (data[0][0][0].transactions_amount) { %>
+              <h4 class="fw-bold">$<%= data[0][0][0].transactions_amount %></h4>
+              <% } else { %>
               <h4 class="fw-bold">$0.00</h4>
+              <% } %>
             </div>
           </div>
           <div class="col-12 col-md-6 col-lg-3 mb-1">
@@ -406,44 +424,65 @@
                     d="M0 5a5 5 0 0 0 4.027 4.905 6.5 6.5 0 0 1 .544-2.073C3.695 7.536 3.132 6.864 3 5.91h-.5v-.426h.466V5.05q-.001-.07.004-.135H2.5v-.427h.511C3.236 3.24 4.213 2.5 5.681 2.5c.316 0 .59.031.819.085v.733a3.5 3.5 0 0 0-.815-.082c-.919 0-1.538.466-1.734 1.252h1.917v.427h-1.98q-.004.07-.003.147v.422h1.983v.427H3.93c.118.602.468 1.03 1.005 1.229a6.5 6.5 0 0 1 4.97-3.113A5.002 5.002 0 0 0 0 5m16 5.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0m-7.75 1.322c.069.835.746 1.485 1.964 1.562V14h.54v-.62c1.259-.086 1.996-.74 1.996-1.69 0-.865-.563-1.31-1.57-1.54l-.426-.1V8.374c.54.06.884.347.966.745h.948c-.07-.804-.779-1.433-1.914-1.502V7h-.54v.629c-1.076.103-1.808.732-1.808 1.622 0 .787.544 1.288 1.45 1.493l.358.085v1.78c-.554-.08-.92-.376-1.003-.787zm1.96-1.895c-.532-.12-.82-.364-.82-.732 0-.41.311-.719.824-.809v1.54h-.005zm.622 1.044c.645.145.943.38.943.796 0 .474-.37.8-1.02.86v-1.674z"
                   />
                 </svg>
-                Total Expenses:
+                Total accounts:
               </p>
-              <h4 class="fw-bold">$0.00</h4>
+              <h4 class="fw-bold"><%= data[0][0][0].accounts_count %></h4>
             </div>
           </div>
         </div>
         <div class="row gap-1">
           <div class="col">
+            <% const transactions = data["1"] && data["1"][0] ? data["1"][0] :
+            []; %>
             <div id="bgColor" class="p-2 rounded-sm shadow h-100">
+              <% if (transactions.length > 0) { %>
               <table class="table table-striped table-hover" id="table">
                 <thead>
                   <tr>
-                    <th>#</th>
-                    <th></th>
+                    <th>Date</th>
+                    <th>Account ID</th>
                     <th>Description</th>
-                    <th>Category</th>
                     <th>Amount</th>
+                    <th>State</th>
+                    <th>Category</th>
                   </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                  <% transactions.forEach(transaction => { %>
+                  <tr>
+                    <% Object.values(transaction).forEach(value => { %>
+                    <td><%= value %></td>
+                    <% }) %>
+                  </tr>
+                  <% }) %>
+                </tbody>
               </table>
+              <% } else { %>
+              <p>No transactions registered.</p>
+              <% } %>
             </div>
           </div>
         </div>
-        <div class="row">
-          <div class="col h-100">
-            <div id="bgColor" class="p-2 rounded-sm shadow">
-              <h5 class="p-2">Categories Spended</h5>
-              <canvas id="categoryChart"></canvas>
+        <div class="row h-100">
+          <div class="col-md-6 h-100">
+            <div id="bgColor" class="p-2 rounded-sm shadow h-100">
+              <h5 class="p-2">Categories Spent</h5>
+              <canvas id="categoryChart" class="w-100 h-100"></canvas>
             </div>
           </div>
-          <div class="col h-100">
-            <div id="bgColor" class="p-2 rounded-sm shadow">
-              <h5 class="p-2">Transactions Realized</h5>
-              <canvas id="transactionsChart"></canvas>
+          <div class="col-md-6 d-flex flex-column h-100">
+            <div class="flex-fill mb-3">
+              <div id="bgColor" class="p-2 rounded-sm shadow h-100">
+                <h5 class="p-2">Transactions Realized</h5>
+                <canvas id="transactionsChart"></canvas>
+              </div>
             </div>
-            <div id="bgColor" class="p-2 rounded-sm shadow">
-              <canvas id="transactionsBarChart"></canvas>
+
+            <div class="flex-fill">
+              <div id="bgColor" class="p-2 rounded-sm shadow h-100">
+                <h5 class="p-2">Transactions Realized</h5>
+                <canvas id="transactionsChart"></canvas>
+              </div>
             </div>
           </div>
         </div>
@@ -472,35 +511,31 @@
           sidebar.style.display = "block";
         }
       }
-
-      const getToken = () => {
-        const param = new URLSearchParams(document.location.search);
-        return param.get("token");
+      const token = <%- JSON.stringify(token).toString() %>;
+      const dashboardData = <%- JSON.stringify(data) %>;
+      const transactionDates = [];
+      const transactionAmounts = [];
+      const transactionCategorys = {
+        Deposit: 0,
+        Withdraw: 0
       };
-      const dashboardData = $("dashboardData").value;
-
+      dashboardData[1][0].forEach(transaction => {
+        if (transaction.transaction_type == "Deposit")
+          transactionCategorys.Deposit += transaction.amount;
+        else if (transaction.transaction_type == "Withdraw")
+          transactionCategorys.Withdraw += transaction.amount;
+        transactionDates.push(transaction.transaction_day);
+        transactionAmounts.push(transaction.amount);
+      });
       new DataTable("#table");
       new Chart($("transactionsChart"), {
         type: "line",
         data: {
-          labels: [
-            "Aug 12",
-            "Aug 10",
-            "Aug 9",
-            "Aug 12",
-            "Aug 10",
-            "Aug 9",
-            "Aug 12",
-            "Aug 10",
-            "Aug 9",
-          ],
+          labels: transactionDates,
           datasets: [
             {
-              label: "# of Transactions",
-              data: [
-                -45.0, 2000.0, -15.2, -45.0, 2000.0, -15.2, -45.0, 2000.0,
-                -15.2,
-              ],
+              label: "Amount of Transactions",
+              data: transactionAmounts,
               borderWidth: 1,
             },
           ],
@@ -516,11 +551,11 @@
       new Chart($("categoryChart"), {
         type: "pie",
         data: {
-          labels: ["Food", "Rent", "Utilities"],
+          labels: ["Deposit", "Withdraw"],
           datasets: [
             {
               label: "Categories",
-              data: [1500, 2500, 700],
+              data: [transactionCategorys.Deposit, transactionCategorys.Withdraw],
               borderWidth: 1,
             },
           ],
@@ -533,39 +568,11 @@
           },
         },
       });
-      new Chart($("transactionsBarChart"), {
-        type: "bar",
-        data: {
-          labels: [
-            "Aug 12",
-            "Aug 10",
-            "Aug 9",
-            "Aug 12",
-            "Aug 10",
-            "Aug 9",
-            "Aug 12",
-            "Aug 10",
-            "Aug 9",
-          ],
-          datasets: [
-            {
-              label: "# of Transactions",
-              data: [
-                -45.0, 2000.0, -15.2, -45.0, 2000.0, -15.2, -45.0, 2000.0,
-                -15.2,
-              ],
-              borderWidth: 1,
-            },
-          ],
-        },
-        options: {
-          scales: {
-            y: {
-              betinAtZero: true,
-            },
-          },
-        },
-      });
+
+      $("periodDays").addEventListener("change", (ev) => {
+        const periodDays = $("periodDays").value;
+        window.location.href = `/dashboard/home?periodDays=${periodDays}`;
+      })
     </script>
   </body>
 </html>

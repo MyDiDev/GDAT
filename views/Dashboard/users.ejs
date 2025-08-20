@@ -321,7 +321,6 @@
       <main
         class="container-fluid d-flex justify-content-center align-items-center flex-column h-100 p-0 m-0"
       >
-        <input type="hidden" id="token" value="<%= token %>" />
         <button
           id="errorModalTrigger"
           type="button"
@@ -374,9 +373,6 @@
               </div>
               <div class="modal-body">
                 <form action="/dashboard/add/user" method="POST">
-                  <div>
-                    <input type="hidden" name="token" value="<%= token %>" />
-                  </div>
                   <div class="mb-3">
                     <div class="form-floating mb-3">
                       <input
@@ -604,11 +600,7 @@
       const delForm = $("deleteForm");
       const updateForm = $("updateForm");
 
-      const getToken = () => {
-        return $("token").value;
-      };
-      const token = getToken();
-
+      const token = <%- JSON.stringify(token).toString() %>;
       $("usersTable").addEventListener("click", (ev) => {
         try {
           if (!datatable) {
@@ -724,7 +716,7 @@
             `;
             tableContent = `
               <tr>
-                <td>No accounts registered</td>  
+                <td>No accounts registered</td>
               </tr>
             `;
           }

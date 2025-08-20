@@ -141,6 +141,7 @@
     ></script>
     <script>
       const $ = (id) => document.getElementById(id);
+      const token = <%- JSON.stringify(token).toString() %>;
       document.querySelector("form").addEventListener("submit", (ev) => {
         ev.preventDefault();
         if (

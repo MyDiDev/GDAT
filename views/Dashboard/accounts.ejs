@@ -309,7 +309,6 @@
       <main
         class="container-fluid d-flex justify-content-center align-items-center flex-column h-100 p-0 m-0"
       >
-        <input type="hidden" id="token" value="<%= token %>">
         <button
           id="errorModalTrigger"
           type="button"
@@ -650,10 +649,7 @@
         }
       });
 
-      const getToken = () => {
-        return $("token").value;
-      };
-      const token = getToken();
+      const token = <%- JSON.stringify(token).toString() %>;
       window.addEventListener("load", async (ev) => {
         checkSideBarResponsive();
         try {
@@ -694,7 +690,7 @@
             `;
             tableContent = `
               <tr>
-                <td>No accounts registered</td>  
+                <td>No accounts registered</td>
               </tr>
             `;
           }

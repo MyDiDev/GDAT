@@ -327,7 +327,6 @@
       <main
         class="container-fluid d-flex justify-content-center align-items-center flex-column h-100 p-0 m-0"
       >
-        <input type="hidden" id="token" value="<%= token %>" />
         <button
           id="errorModalTrigger"
           type="button"
@@ -379,7 +378,7 @@
                 ></button>
               </div>
               <div class="modal-body">
-                <form action="/dashboard/add/account" method="POST">
+                <form action="/dashboard/add/transaction" method="POST">
                   <div class="mb-3">
                     <div class="form-floating mb-3">
                       <input
@@ -474,7 +473,7 @@
               </div>
               <div class="modal-body">
                 <form
-                  action="/dashboard/update/account"
+                  action="/dashboard/update/transaction"
                   method="post"
                   id="updateForm"
                 >
@@ -544,13 +543,6 @@
 
         <section class="w-100 p-3">
           <div class="d-flex gap-2">
-            <!-- <button
-              class="btn btn-primary"
-              data-bs-toggle="modal"
-              data-bs-target="#addModal"
-            >
-              Create transaction
-            </button> -->
             <button class="btn btn-primary" disabled id="editBtn">
               Edit transaction
               <button
@@ -581,6 +573,7 @@
                 <th>#</th>
                 <th>Account ID</th>
                 <th>Description</th>
+                <th>Amount</th>
                 <th>State</th>
                 <th>Transaction Type</th>
                 <th>Date</th>
@@ -615,11 +608,7 @@
       const delForm = $("deleteForm");
       const updateForm = $("updateForm");
 
-      const getToken = () => {
-        return $("token").value;
-      };
-      const token = getToken();
-
+      const token = <%- JSON.stringify(token).toString() %>;
       $("transactionsTable").addEventListener("click", (ev) => {
         try {
           if (!datatable) {
@@ -638,13 +627,14 @@
               delBtn.disabled = false;
             }
 
+            console.log(rowData);
             updateForm.elements["id"].value = id;
-            updateForm.elements["description"].value = rowData[1];
-            updateForm.elements["amount"].value = rowData[2];
-            $("selectedState").value = rowData[3];
-            $("selectedState").textContent = rowData[3];
-            $("selectedType").value = rowData[4];
-            $("selectedType").textContent = rowData[4];
+            updateForm.elements["description"].value = rowData[2];
+            updateForm.elements["amount"].value = rowData[3];
+            $("selectedState").value = rowData[4];
+            $("selectedState").textContent = rowData[4];
+            $("selectedType").value = rowData[5];
+            $("selectedType").textContent = rowData[5];
             return;
           }
           errorMsg.textContent = "Could not find valid identifier";
@@ -656,7 +646,7 @@
       });
 
       editBtn.addEventListener("click", () => {
-        if (!rowData || isNaN(typeof Number(rowData[0]))) {
+        if (!rowData || isNaN(Number(rowData[0]))) {
           editBtn.disabled = true;
           errorMsg.textContent = "No valid identifier found, try selecting it.";
           errorModalTrigger.click();
@@ -721,7 +711,8 @@
             <tr>
               <td>${rowDataPacket.id}</td>
               <td>${rowDataPacket.id_account}</td>
-              <td>${rowDataPacket.description}</td>
+              <td>${rowDataPacket.transaction_description}</td>
+              <td>${rowDataPacket.amount}</td>
               <td>${rowDataPacket.state}</td>
               <td>${rowDataPacket.transaction_type}</td>
               <td>${rowDataPacket.date_registered}</td>

@@ -162,9 +162,7 @@
                     <th>Amount</th>
                   </tr>
                 </thead>
-                <tbody>
-
-                </tbody>
+                <tbody></tbody>
               </table>
             </div>
           </div>
@@ -201,7 +199,8 @@
     <script>
       const $ = (id) => document.getElementById(id);
 
-      const getDashboardData = () => $("dashboardData").value;
+      const token = <%- JSON.stringify(token).toString() %>;
+      const getDashboardData = <%- JSON.stringify(data) %>;
       console.log(getDashboardData());
       new DataTable("#table");
       new Chart($("transactionsChart"), {

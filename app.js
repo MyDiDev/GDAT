@@ -272,11 +272,16 @@ app.post("/api/data/update/transaction", async (req, res) => {
     return res.redirect("/login?error=Invalid+Session");
 
   const id = req.body?.id;
-  const transaction = new Transactions();
+  const amount = req.body?.amount;
+  const description = req.body?.description;
+  const type = req.body?.transactionType;
+  const state = req.body?.state;
+
+  const transaction = new Transactions(description, amount, 0, state, type);
   const result = await transaction.updateTransaction(id);
 
   if (result) res.json({ result: result });
-  else res.json({ result: "Could not add User." });
+  else res.json({ result: "Could not update transaction." });
 });
 
 app.post("/api/data/delete/user", async (req, res) => {
@@ -480,19 +485,30 @@ app.get("/dashboard/home", async (req, res) => {
     res.json({ error: "Invalid User" });
     return;
   }
-
-  const response = await fetch(
-    `${APIURL}/api/data/dashboard?token=${token}&periodDays=${7}`,
-    {
-      method: "GET",
-    }
-  );
+  const periodDays = Number(req.query?.periodDays);
+  let response;
+  if (isNaN(periodDays)) {
+    response = await fetch(
+      `${APIURL}/api/data/dashboard?token=${token}&periodDays=${7}`,
+      {
+        method: "GET",
+      }
+    );
+  } else {
+    response = await fetch(
+      `${APIURL}/api/data/dashboard?token=${token}&periodDays=${periodDays}`,
+      {
+        method: "GET",
+      }
+    );
+  }
 
   if (!response.ok) {
     res.json({
       error: "Unable to load dashboard data, try re-entering the application",
     });
   }
+
   const data = await response.json();
   res.status(200).render("Dashboard/index", {
     user: decode,
@@ -616,16 +632,21 @@ app.post("/dashboard/delete/user", async (req, res) => {
 });
 
 app.get("/dashboard/accounts", async (req, res) => {
-  if (!token) return res.json({ error: "Invalid session found" });
-  let decode = null;
+  if (!token) {
+    res.json({ error: "Invalid session found" });
+    return;
+  }
+  let decode;
   try {
     decode = await decodeToken(token);
   } catch (error) {
     return res.redirect("/login?error=Session+terminated");
   }
   const role = decode.role;
-  if (role != "admin") return res.json({ error: "Invalid User" });
-
+  if (role != "admin") {
+    res.json({ error: "Invalid User" });
+    return;
+  }
   res.render("Dashboard/accounts", {
     token: token,
   });
@@ -633,10 +654,21 @@ app.get("/dashboard/accounts", async (req, res) => {
 
 app.post("/dashboard/add/account", async (req, res) => {
   try {
-    if (!token) return res.json({ error: "Invalid session found" });
-    const decode = await decodeToken(token);
+    if (!token) {
+      res.json({ error: "Invalid session found" });
+      return;
+    }
+    let decode;
+    try {
+      decode = await decodeToken(token);
+    } catch (error) {
+      return res.redirect("/login?error=Session+terminated");
+    }
     const role = decode.role;
-    if (role != "admin") return res.json({ error: "Invalid User" });
+    if (role != "admin") {
+      res.json({ error: "Invalid User" });
+      return;
+    }
 
     const email = req.body?.email;
     const balance = Number(req.body?.balance);
@@ -689,10 +721,21 @@ app.post("/dashboard/update/account", async (req, res) => {
 
 app.post("/dashboard/delete/account", async (req, res) => {
   try {
-    if (!token) return res.json({ error: "Invalid session found" });
-    const decode = await decodeToken(token);
+    if (!token) {
+      res.json({ error: "Invalid session found" });
+      return;
+    }
+    let decode;
+    try {
+      decode = await decodeToken(token);
+    } catch (error) {
+      return res.redirect("/login?error=Session+terminated");
+    }
     const role = decode.role;
-    if (role != "admin") return res.json({ error: "Invalid User" });
+    if (role != "admin") {
+      res.json({ error: "Invalid User" });
+      return;
+    }
 
     const id = req.body?.id;
     const email = req.body?.email;
@@ -760,26 +803,41 @@ app.post("/dashboard/add/transaction", async (req, res) => {
 });
 
 app.post("/dashboard/update/transaction", async (req, res) => {
-  if (!token) return res.json({ error: "Invalid session found" });
-  let decode = null;
+  if (!token) {
+    res.json({ error: "Invalid session found" });
+    return;
+  }
+  let decode;
   try {
     decode = await decodeToken(token);
   } catch (error) {
     return res.redirect("/login?error=Session+terminated");
   }
   const role = decode.role;
-  if (role != "admin") return res.json({ error: "Invalid User" });
+  if (role != "admin") {
+    res.json({ error: "Invalid User" });
+    return;
+  }
 
-  const email = sanitize(req.body?.email);
-  const balance = Number(req.body?.balance);
-  const accType = sanitize(req.body?.type);
+  const id = Number(req.body?.id);
+  const description = sanitize(req.body?.description);
+  const amount = Number(req.body?.amount);
+  const transactionType = sanitize(req.body?.type);
+  const state = sanitize(req.body?.state);
 
   const result = await fetch(`${APIURL}/api/data/update/transaction`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ email, balance, accType, token }),
+    body: JSON.stringify({
+      id,
+      amount,
+      transactionType,
+      description,
+      state,
+      token,
+    }),
   });
 
   if (result.ok && result.result != "Could not add Transaction")
@@ -792,10 +850,21 @@ app.post("/dashboard/update/transaction", async (req, res) => {
 
 app.post("/dashboard/delete/transaction", async (req, res) => {
   try {
-    if (!token) return res.json({ error: "Invalid session found" });
-    const decode = await decodeToken(token);
+    if (!token) {
+      res.json({ error: "Invalid session found" });
+      return;
+    }
+    let decode;
+    try {
+      decode = await decodeToken(token);
+    } catch (error) {
+      return res.redirect("/login?error=Session+terminated");
+    }
     const role = decode.role;
-    if (role != "admin") return res.json({ error: "Invalid User" });
+    if (role != "admin") {
+      res.json({ error: "Invalid User" });
+      return;
+    }
 
     const id = req.body?.id;
 
