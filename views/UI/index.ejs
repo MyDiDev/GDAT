@@ -58,15 +58,24 @@
       </div>
 
       <div class="container-fluid d-flex flex-column gap-3 h-100 mt-3">
-        <div class="mb-3 mt-2">
-          <h1>
-            Welcome <$= String(user.name).charAt(0).toUpperCase +
-            String(user.name).slice(1) %>!
-          </h1>
+        <div class="mb-1 mt-3">
+          <h1 class="mb-3">Welcome <%= user.name %>!</h1>
+          <div class="form-floating">
+            <select id="periodDays" class="form-control bg-body-tertiary">
+              <option value="7">7 Days</option>
+              <option value="30">1 Month</option>
+              <option value="180">6 Months</option>
+              <option value="365">1 Year</option>
+              <option value="<% new Date().getFullYear() * 365 %>">
+                All Time
+              </option>
+            </select>
+            <label for="periodDays">Period of Time</label>
+          </div>
         </div>
         <div class="row">
           <div class="col-12 col-md-6 col-lg-3 mb-1">
-            <div class="bg-body-tertiary p-2 rounded shadow">
+            <div class="bg-body-tertiary p-2 rounded shadow border">
               <p class="mb-2 fs-5">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -82,11 +91,11 @@
                 </svg>
                 Current Balance:
               </p>
-              <h4 class="fw-bold">$0.00</h4>
+              <h4 class="fw-bold">$<%= data[0][0][0].current_balance %></h4>
             </div>
           </div>
           <div class="col-12 col-md-6 col-lg-3 mb-1">
-            <div class="bg-body-tertiary p-2 rounded shadow">
+            <div class="bg-body-tertiary p-2 rounded shadow border">
               <p class="mb-2 fs-5">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -105,11 +114,11 @@
                 </svg>
                 Total Transactions:
               </p>
-              <h4 class="fw-bold" id="totalTransactions">none</h4>
+              <h4 class="fw-bold" id="totalTransactions"><%= data[0][0][0].total_transactions %></h4>
             </div>
           </div>
           <div class="col-12 col-md-6 col-lg-3 mb-1">
-            <div class="bg-body-tertiary p-2 rounded shadow">
+            <div class="bg-body-tertiary p-2 rounded shadow border">
               <p class="mb-2 fs-5">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -125,11 +134,11 @@
                 </svg>
                 Total Income:
               </p>
-              <h4 class="fw-bold">$0.00</h4>
+              <h4 class="fw-bold">$<%= data[0][0][0].total_income %></h4>
             </div>
           </div>
           <div class="col-12 col-md-6 col-lg-3 mb-1">
-            <div class="bg-body-tertiary p-2 rounded shadow">
+            <div class="bg-body-tertiary p-2 rounded shadow border">
               <p class="mb-2 fs-5">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -145,42 +154,65 @@
                 </svg>
                 Total Expenses:
               </p>
-              <h4 class="fw-bold">$0.00</h4>
+              <h4 class="fw-bold">$<%= data[0][0][0].total_expenses %></h4>
             </div>
           </div>
         </div>
         <div class="row gap-1">
           <input type="hidden" id="dashboardData" value="<%= data %>" />
           <div class="col">
-            <div class="bg-body-tertiary p-2 rounded-sm shadow h-100">
-              <table class="table table-striped table-hover" id="table">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Description</th>
-                    <th>Category</th>
-                    <th>Amount</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
+            <div class="bg-body-tertiary p-2 rounded-sm shadow h-100 border">
+              <% const transactions = data["1"] && data["1"][0] && !data[1][0][0].result ? data["1"][0] :
+              []; %>
+              <div class="p-2 rounded-sm shadow h-100">
+                <% if (transactions.length > 0) { %>
+                <table class="table table-striped table-hover" id="table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Account ID</th>
+                      <th>Description</th>
+                      <th>Amount</th>
+                      <th>State</th>
+                      <th>Category</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% transactions.forEach(transaction => { %>
+                    <tr>
+                      <% Object.values(transaction).forEach(value => { %>
+                      <td><%= value %></td>
+                      <% }) %>
+                    </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+                <% } else { %>
+                <p>No transactions registered.</p>
+                <% } %>
             </div>
           </div>
         </div>
-        <div class="row">
-          <div class="col h-100">
-            <div class="bg-body-tertiary p-2 rounded-sm shadow">
-              <h5 class="p-2">Categories Spended</h5>
+        <div class="row h-100 mt-3">
+          <div class="col-md-6 h-100">
+            <div class="p-2 rounded-sm shadow h-100 bg-body-tertiary border">
+              <h5 class="p-2">Categories Spent</h5>
               <canvas id="categoryChart"></canvas>
             </div>
           </div>
-          <div class="col h-100">
-            <div class="bg-body-tertiary p-2 rounded-sm shadow">
-              <h5 class="p-2">Transactions Realized</h5>
-              <canvas id="transactionsChart"></canvas>
+          <div class="col-md-6 d-flex flex-column h-100">
+            <div class="flex-fill mb-3">
+              <div class="p-2 rounded-sm shadow h-100 bg-body-tertiary border">
+                <h5 class="p-2">Transactions Realized</h5>
+                <canvas id="transactionsChart"></canvas>
+              </div>
             </div>
-            <div class="bg-body-tertiary p-2 rounded-sm shadow">
-              <canvas id="transactionsBarChart"></canvas>
+
+            <div class="flex-fill">
+              <div class="p-2 rounded-sm shadow h-100 bg-body-tertiary border">
+                <h5 class="p-2">Transactions Realized</h5>
+                <canvas id="transactionsChart"></canvas>
+              </div>
             </div>
           </div>
         </div>
@@ -200,30 +232,35 @@
       const $ = (id) => document.getElementById(id);
 
       const token = <%- JSON.stringify(token).toString() %>;
-      const getDashboardData = <%- JSON.stringify(data) %>;
-      console.log(getDashboardData());
+      const dashboardData = <%- JSON.stringify(data) %>;
+      const transactionCategories = {
+        Deposit: 0,
+        Withdraw: 0
+      };
+      const transactionAmounts = [];
+      const transactionDates = [];
+      const transactionsRegistered = dashboardData[1][0];
+      
+      if(transactionsRegistered && transactionsRegistered.length > 0){
+        transactionsRegistered.forEach(transaction => {
+          if (transaction.transaction_type == "Deposit")
+            transactionCategories.Deposit += transaction.amount;
+          else if (transaction.transaction_type == "Withdraw")
+            transactionCategories.Withdraw += transaction.amount;
+          transactionAmounts.push(transaction.amount);
+          transactionDates.push(transaction.transaction_date);
+        });
+      }
+
       new DataTable("#table");
       new Chart($("transactionsChart"), {
         type: "line",
         data: {
-          labels: [
-            "Aug 12",
-            "Aug 10",
-            "Aug 9",
-            "Aug 12",
-            "Aug 10",
-            "Aug 9",
-            "Aug 12",
-            "Aug 10",
-            "Aug 9",
-          ],
+          labels: transactionDates,
           datasets: [
             {
               label: "# of Transactions",
-              data: [
-                -45.0, 2000.0, -15.2, -45.0, 2000.0, -15.2, -45.0, 2000.0,
-                -15.2,
-              ],
+              data: transactionAmounts,
               borderWidth: 1,
             },
           ],
@@ -239,11 +276,11 @@
       new Chart($("categoryChart"), {
         type: "pie",
         data: {
-          labels: ["Food", "Rent", "Utilities"],
+          labels: ["Deposit", "Withdraw"],
           datasets: [
             {
               label: "Categories",
-              data: [1500, 2500, 700],
+              data: [transactionCategories.Deposit, transactionCategories.Withdraw],
               borderWidth: 1,
             },
           ],
@@ -256,39 +293,11 @@
           },
         },
       });
-      new Chart($("transactionsBarChart"), {
-        type: "bar",
-        data: {
-          labels: [
-            "Aug 12",
-            "Aug 10",
-            "Aug 9",
-            "Aug 12",
-            "Aug 10",
-            "Aug 9",
-            "Aug 12",
-            "Aug 10",
-            "Aug 9",
-          ],
-          datasets: [
-            {
-              label: "# of Transactions",
-              data: [
-                -45.0, 2000.0, -15.2, -45.0, 2000.0, -15.2, -45.0, 2000.0,
-                -15.2,
-              ],
-              borderWidth: 1,
-            },
-          ],
-        },
-        options: {
-          scales: {
-            y: {
-              betinAtZero: true,
-            },
-          },
-        },
+      
+      $("periodDays").addEventListener("change", (ev) => {
+        const periodDays = $("periodDays").value;
+        window.location.href = `/home?periodDays=${periodDays}`;
       });
-    </script>
+  </script>
   </body>
 </html>

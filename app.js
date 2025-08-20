@@ -108,7 +108,7 @@ app.get("/api/data/user/dashboard", async (req, res) => {
     return;
   }
   const user = new User();
-  const dashboardData = await user.getDashData(decode.id, periodDays);
+  const dashboardData = await user.getDashboardData(decode.id, periodDays);
   res.status(200).json({ result: dashboardData });
 });
 
@@ -901,12 +901,24 @@ app.get("/home", async (req, res) => {
     return;
   }
 
-  const response = await fetch(
-    `${APIURL}/api/data/user/dashboard?token=${token}&periodDays=${7}`,
-    {
-      method: "GET",
-    }
-  );
+  const periodDays = Number(req.query?.periodDays);
+  let response;
+  if (isNaN(periodDays)) {
+    response = await fetch(
+      `${APIURL}/api/data/user/dashboard?token=${token}&periodDays=${7}`,
+      {
+        method: "GET",
+      }
+    );
+  } else {
+    response = await fetch(
+      `${APIURL}/api/data/user/dashboard?token=${token}&periodDays=${periodDays}`,
+      {
+        method: "GET",
+      }
+    );
+  }
+
   if (!response.ok) {
     res
       .status(404)
@@ -914,11 +926,11 @@ app.get("/home", async (req, res) => {
     return;
   }
 
-  const data = response.json().result;
+  const data = await response.json();
   res.status(200).render("UI/index", {
     user: decode,
     token: token,
-    data: data,
+    data: data.result,
   });
 });
 
@@ -968,6 +980,11 @@ app.post("/forms/withdraw/new", async (req, res) => {
   const role = decode.role;
   if (role == "admin") res.redirect("/dashboard/home");
   res.sendFile(path.join(__dirname, "views", "UI", "withdraw.html"));
+});
+
+app.get("/logout", (req, res) => {
+  token = null;
+  res.redirect("/login");
 });
 
 app.use((req, res) => {
