@@ -1,6 +1,11 @@
-import express from "express";
+import express, { response } from "express";
 import cors from "cors";
-import { connectToDb, getUserId, getDashData } from "./db/connection.js";
+import {
+  connectToDb,
+  getUserId,
+  getDashData,
+  addNewTransaction,
+} from "./db/connection.js";
 import { fileURLToPath } from "url";
 import path, { dirname } from "path";
 import { User } from "./Logic/classes/user.js";
@@ -8,6 +13,7 @@ import { Account } from "./Logic/classes/account.js";
 import { Transactions } from "./logic/classes/transaction.js";
 import { sanitize } from "./utils/sanitizer.js";
 import { genToken, decodeToken } from "./logic/tokenizer.js";
+import valid_credit_card from "./utils/luhn.js";
 
 const app = express();
 let token = null;
@@ -89,13 +95,14 @@ app.get("/api/data/dashboard", async (req, res) => {
 
 app.get("/api/data/user/dashboard", async (req, res) => {
   const token = req.query?.token;
-  const periodDays = Number(req.query?.periodDays);
+  let periodDays = Number(req.query?.periodDays);
 
   let decode;
   try {
     decode = await decodeToken(token);
   } catch (error) {
     res.status(404).json({ error: "Invalid Token" });
+    return;
   }
 
   if (!decode || decode.role != "user") {
@@ -103,10 +110,8 @@ app.get("/api/data/user/dashboard", async (req, res) => {
     return;
   }
 
-  if (isNaN(periodDays)) {
-    res.status(400).json({ error: "Invalid period of days" });
-    return;
-  }
+  if (isNaN(periodDays)) periodDays = new Date().getFullYear() * 365;
+
   const user = new User();
   const dashboardData = await user.getDashboardData(decode.id, periodDays);
   res.status(200).json({ result: dashboardData });
@@ -890,15 +895,14 @@ app.post("/dashboard/delete/transaction", async (req, res) => {
 // User
 app.get("/home", async (req, res) => {
   if (!token) {
-    res.redirect("/login?error=Invalid+session+please+authenticate");
+    res.json({ error: "Invalid session found" });
     return;
   }
-  const decode = await decodeToken(token);
-  const role = decode.role;
-
-  if (role == "admin") {
-    res.redirect("/dashboard/home");
-    return;
+  let decode;
+  try {
+    decode = await decodeToken(token);
+  } catch (error) {
+    return res.redirect("/login?error=Session+terminated");
   }
 
   const periodDays = Number(req.query?.periodDays);
@@ -936,50 +940,132 @@ app.get("/home", async (req, res) => {
 
 app.get("/forms/deposit", async (req, res) => {
   if (!token) {
-    res.redirect("/login?error=Invalid+session+please+authenticate");
+    res.json({ error: "Invalid session found" });
     return;
   }
-  const decode = await decodeToken(token);
+  let decode;
+  try {
+    decode = await decodeToken(token);
+  } catch (error) {
+    return res.redirect("/login?error=Session+terminated");
+  }
   const role = decode.role;
-  if (role == "admin") res.redirect("/dashboard/home");
+  if (role == "admin") {
+    res.redirect("/dashboard/home");
+    return;
+  }
+
+  const response = await fetch(
+    `${APIURL}/api/data/user/dashboard?token=${token}&periodDays=${
+      new Date().getFullYear() * 365
+    }`,
+    {
+      method: "GET",
+    }
+  );
+
+  if (!response.ok) {
+    res
+      .status(400)
+      .json({ error: "Could not get enough data, please try re-entering" });
+    return;
+  }
+
+  const data = await response.json();
+
   res.render("UI/deposit", {
     token: token,
+    data: data.result,
   });
 });
 
 app.get("/forms/withdraw", async (req, res) => {
   if (!token) {
-    res.redirect("/login?error=Invalid+session+please+authenticate");
+    res.json({ error: "Invalid session found" });
     return;
   }
-  const decode = await decodeToken(token);
+  let decode;
+  try {
+    decode = await decodeToken(token);
+  } catch (error) {
+    return res.redirect("/login?error=Session+terminated");
+  }
   const role = decode.role;
   if (role == "admin") res.redirect("/dashboard/home");
+
+  const response = await fetch(
+    `${APIURL}/api/data/user/dashboard?token=${token}&periodDays${
+      new Date().getFullYear() * 365
+    }`,
+    {
+      method: "GET",
+    }
+  );
+
+  if (!response.ok) {
+    res.json({
+      error: "Could not get enough data to proceed, please try re-entering",
+    });
+    return;
+  }
+
+  const data = await response.json();
+
   res.render("UI/withdraw", {
     token: token,
+    data: data.result,
   });
 });
 
 app.post("/forms/deposit/new", async (req, res) => {
   if (!token) {
-    res.redirect("/login?error=Invalid+session+please+authenticate");
+    res.json({ error: "Invalid session found" });
     return;
   }
-  const decode = await decodeToken(token);
+  let decode;
+  try {
+    decode = await decodeToken(token);
+  } catch (error) {
+    return res.redirect("/login?error=Session+terminated");
+  }
   const role = decode.role;
   if (role == "admin") res.redirect("/dashboard/home");
-  res.sendFile(path.join(__dirname, "views", "UI", "deposit.html"));
 });
 
 app.post("/forms/withdraw/new", async (req, res) => {
   if (!token) {
-    res.redirect("/login?error=Invalid+session+please+authenticate");
+    res.json({ error: "Invalid session found" });
     return;
   }
-  const decode = await decodeToken(token);
+  let decode;
+  try {
+    decode = await decodeToken(token);
+  } catch (error) {
+    return res.redirect("/login?error=Session+terminated");
+  }
   const role = decode.role;
   if (role == "admin") res.redirect("/dashboard/home");
-  res.sendFile(path.join(__dirname, "views", "UI", "withdraw.html"));
+
+  const description = sanitize(req.body?.description);
+  const amount = Number(req.body?.amount);
+  const cardName = sanitize(req.body?.card_name);
+  const cardNumber = req.body?.card_number;
+  const expireDate = req.body?.expire_date;
+  const code = Number(req.body?.cvc_code);
+  const email = sanitize(req.body?.email);
+
+  // if (!valid_credit_card(cardNumber)){
+  //   res.redirect("/home/deposit?error=Invalid+credit+card");
+  //   return;
+  // }
+
+  const response = await fetch(`${APIURL}/api/data/add/transaction`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ token }),
+  });
 });
 
 app.get("/logout", (req, res) => {

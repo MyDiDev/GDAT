@@ -86,7 +86,7 @@
               <div class="bg-body-tertiary">
                 <div class="d-flex gap-2 mb-3">
                   <p class="mb-1">Current Balance:</p>
-                  <h5 class="fw-bold">$0.00</h5>
+                  <h5 class="fw-bold">$<%= data[0][0][0].current_balance %></h5>
                 </div>
               </div>
               <form action="/payment" method="post">
@@ -104,7 +104,7 @@
                   />
                 </div>
                 <div class="mb-3">
-                  <label for="email" class="form-label fw-bold">Email:</label>
+                  <label for="email" class="form-label fw-bold">Confirm your Email:</label>
                   <input
                     type="email"
                     name="email"
@@ -142,6 +142,8 @@
     <script>
       const $ = (id) => document.getElementById(id);
       const token = <%- JSON.stringify(token).toString() %>;
+      const data = <%- JSON.stringify(data) %>;
+      
       document.querySelector("form").addEventListener("submit", (ev) => {
         ev.preventDefault();
         if (

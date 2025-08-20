@@ -1,6 +1,8 @@
 import { HOST, PASSWORD, USER, DATABASE, PORT } from "./secret.js";
 import mysql from "mysql";
 import bcrypt from "bcrypt";
+import { resolve } from "path";
+import { rejects } from "assert";
 let conn = null;
 
 export async function connectToDb() {
@@ -74,7 +76,7 @@ export async function authtenticateUser(name = "", email = "", password = "") {
         [name, email],
         async (err, result) => {
           if (err) reject(err);
-          
+
           let passwordHash;
           setInterval(() => {}, 2000);
           if (result) {
@@ -200,6 +202,25 @@ export async function getUserId(name = "", email = "") {
       return;
     }
   }
+}
+
+export async function getAccountID(uid = 0) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!conn) await connectToDb();
+      if (!uid) reject(new Error("Invalid user ID"));
+      conn.query(
+        "SELECT * FROM accounts WHERE id_user = ?",
+        [uid],
+        (err, result) => {
+          if (err) reject(err);
+          resolve(result[0]);
+        }
+      );
+    } catch (error) {
+      reject(error.message);
+    }
+  });
 }
 
 export async function addNewUser(name, email, password, role = "user") {

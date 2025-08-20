@@ -38,13 +38,19 @@
             <a href="/home" class="btn btn-dark rounded-0 p-3 fw-bold fs-5"
               >Home</a
             >
-            <a href="/forms/deposit" class="btn btn-primary rounded-0 p-3 fw-bold fs-5"
+            <a
+              href="/forms/deposit"
+              class="btn btn-primary rounded-0 p-3 fw-bold fs-5"
               >Deposit</a
             >
-            <a href="/forms/withdraw" class="btn btn-dark rounded-0 p-3 fw-bold fs-5"
+            <a
+              href="/forms/withdraw"
+              class="btn btn-dark rounded-0 p-3 fw-bold fs-5"
               >Withdraw</a
             >
-            <a href="/user/profile" class="btn btn-dark rounded-0 p-3 fw-bold fs-5"
+            <a
+              href="/user/profile"
+              class="btn btn-dark rounded-0 p-3 fw-bold fs-5"
               >Profile</a
             >
           </div>
@@ -79,16 +85,20 @@
               <h3 class="m-0 fw-bold">Payment Form</h3>
               <p class="text-muted m-1">make sure to fill all the fields.</p>
               <hr class="my-3" />
-              <form action="/payment" method="post">
+              <div class="d-flex gap-2 mb-3">
+                <p class="mb-1">Current Balance:</p>
+                <h5 class="fw-bold">$<%= data[0][0][0].current_balance %></h5>
+              </div>
+              <form action="/form/deposit/new" method="post">
                 <div class="mb-3">
-                  <label for="category" class="form-label fw-bold"
-                    >Category:</label
+                  <label for="description" class="form-label fw-bold"
+                    >Description:</label
                   >
                   <input
                     type="text"
-                    name="category"
-                    id="category"
-                    placeholder="Enter the category of the expense or income"
+                    name="description"
+                    id="description"
+                    placeholder="Enter the description of the expense or income"
                     class="form-control"
                     required
                   />
@@ -172,7 +182,7 @@
                     type="email"
                     name="email"
                     id="email"
-                    placeholder="Enter your email"
+                    placeholder="Enter the email for the account to deposit"
                     class="form-control"
                     required
                   />

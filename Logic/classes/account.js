@@ -3,6 +3,7 @@ import {
   addNewAccount,
   deleteAccount,
   updateAccount,
+  getAccountID,
 } from "../../db/connection.js";
 
 export class Account {
@@ -26,5 +27,9 @@ export class Account {
 
   async get() {
     return await getAccounts();
+  }
+
+  async getID() {
+    return await getAccountID(this.uid);
   }
 }
