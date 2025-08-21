@@ -72,6 +72,12 @@ export class User {
     return await getUserDashData(id, periodDays);
   }
 
+  async getCountry(ip = null) {
+    const response = await fetch(`https://ipapi.co/${ip}/country/`);
+    const countryCode = await response.text();
+    return countryCode.trim();
+  }
+
   generatePayload(uid) {
     const userObject = {
       id: uid ?? getUserId(this.name, this.email, this.password),

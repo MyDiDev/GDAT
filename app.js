@@ -15,6 +15,7 @@ import { sanitize } from "./utils/sanitizer.js";
 import { genToken, decodeToken } from "./logic/tokenizer.js";
 import valid_credit_card from "./utils/luhn.js";
 import requestIp from "request-ip";
+import { JsonWebTokenError } from "jsonwebtoken";
 
 const app = express();
 let token = null;
@@ -29,13 +30,13 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use(express.urlencoded());
+await connectToDb();
+
 let currentIp;
 app.use(requestIp.mw());
 app.use((req, res) => {
   currentIp = req.clientIp;
 });
-
-await connectToDb();
 
 app.get("/api/data", async (req, res) => {
   const token = req.query?.token ?? null;
@@ -1142,6 +1143,8 @@ app.post("/forms/deposit/new", async (req, res) => {
 
   // params
   const params = await getParameters();
+  const userCountry = new User().getCountry(currentIp);
+
   if (amount >= params.max_transaction_amount_per_day) {
     res.redirect(
       `/forms/depostit?error=Only+deposits+permitted+${params.max_transaction_amount_per_day}+per+day`
@@ -1156,12 +1159,8 @@ app.post("/forms/deposit/new", async (req, res) => {
     return;
   }
 
-  if (params.vpn_block_enabled) {
-    res.redirect(`/forms/depostit?error=No+vpns+permitted`);
-    return;
-  }
-
-  if (params.blacklisted_countries) {
+  const blackListCountries = JSON.parse('["NG", "PK", "RU"]');
+  if (blackListCountries.includes(userCountry)) {
     res.redirect(
       `/forms/depostit?error=Invalid+country+to+register+transaction`
     );
@@ -1208,9 +1207,14 @@ app.post("/forms/withdraw/new", async (req, res) => {
     return res.redirect("/login?error=Session+terminated");
   }
   const role = decode.role;
-  if (role == "admin") res.redirect("/dashboard/home");
+  if (role == "admin"){
+    res.redirect("/dashboard/home");
+    return;
+  } 
 
   const params = await getParameters();
+  const userCountry = new User().getCountry(currentIp);
+
   if (amount >= params.max_transaction_amount_per_day) {
     res.redirect(
       `/forms/depostit?error=Only+deposits+permitted+${params.max_transaction_amount_per_day}+per+day`
@@ -1225,12 +1229,8 @@ app.post("/forms/withdraw/new", async (req, res) => {
     return;
   }
 
-  if (params.vpn_block_enabled) {
-    res.redirect(`/forms/depostit?error=No+vpns+permitted`);
-    return;
-  }
-
-  if (params.blacklisted_countries) {
+  const blackListCountries = JSON.parse('["NG", "PK", "RU"]');
+  if (blackListCountries.includes(userCountry)) {
     res.redirect(
       `/forms/depostit?error=Invalid+country+to+register+transaction`
     );
