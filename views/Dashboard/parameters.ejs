@@ -359,6 +359,84 @@
           </div>
         </div>
 
+        <div class="modal fade" id="addModal" tabindex="1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Create new Account</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dissmiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <form action="/dashboard/add/user" method="POST">
+                  <div class="mb-3">
+                    <div class="form-floating mb-3">
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="name"
+                        id="name"
+                        autocomplete="off"
+                      />
+                      <label for="name" class="form-label">User name</label>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <div class="form-floating mb-3">
+                      <input
+                        type="email"
+                        class="form-control"
+                        name="email"
+                        id="email"
+                        autocomplete="off"
+                      />
+                      <label for="email" class="form-label">User email</label>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <div class="form-floating mb-3">
+                      <input
+                        type="password"
+                        class="form-control"
+                        name="password"
+                        id="password"
+                        autocomplete="off"
+                      />
+                      <label for="password" class="form-label"
+                        >User password</label
+                      >
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <div class="form-floating mb-3">
+                      <select
+                        name="role"
+                        class="form-control"
+                        id="role"
+                        autocomplete="off"
+                      >
+                        <option value="user">User</option>
+                        <option value="admin">
+                          Administrator for the System
+                        </option>
+                      </select>
+                      <label for="role">User role</label>
+                    </div>
+                  </div>
+                  <button class="btn btn-primary w-100 fs-6" type="submit">
+                    Create
+                  </button>
+                </form>
+              </div>
+              <div class="modal-footer"></div>
+            </div>
+          </div>
+        </div>
+
         <button
           id="updateModalTrigger"
           type="button"
@@ -385,7 +463,7 @@
               </div>
               <div class="modal-body">
                 <form
-                  action="/dashboard/update/alert"
+                  action="/dashboard/update/user"
                   method="post"
                   id="updateForm"
                 >
@@ -480,15 +558,16 @@
             </button>
           </div>
           <table
-            id="alertsTable"
+            id="usersTable"
             class="table table-dark table-hover table-striped"
           >
             <thead id="theadContent">
               <tr>
                 <th>#</th>
-                <th>User ID</th>
-                <th>Account ID</th>
-                <th>Description</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Password</th>
+                <th>Role</th>
                 <th>Date Registered</th>
               </tr>
             </thead>
@@ -522,7 +601,7 @@
       const updateForm = $("updateForm");
 
       const token = <%- JSON.stringify(token).toString() %>;
-      $("alertsTable").addEventListener("click", (ev) => {
+      $("usersTable").addEventListener("click", (ev) => {
         try {
           if (!datatable) {
             console.error("No datatable found");
@@ -598,7 +677,7 @@
       window.addEventListener("load", async (ev) => {
         checkSideBarResponsive();
         try {
-          const APIURL = `http://localhost:3000/api/data?table=alerts&token=${token}`;
+          const APIURL = `http://localhost:3000/api/data?table=users&token=${token}`;
           const response = await fetch(APIURL, {
             method: "GET",
           });
@@ -608,22 +687,23 @@
               "Error while getting the data for the accounts registered, try again.";
             errorModalTrigger.click();
           }
-          const alertsRegistered = data;
+          const usersRegistered = data;
           let theadContent = $("theadContent");
 
           let tableContent = "";
           const tbody = $("tbodyContent");
           if (
-            Object.keys(alertsRegistered.result[0]).length > 0 &&
-            alertsRegistered.result[0][0]?.result != "No alerts registered"
+            Object.keys(usersRegistered.result[0]).length > 0 &&
+            usersRegistered.result[0][0]?.result != "No users registered"
           ) {
-            alertsRegistered?.result[0].forEach((rowDataPacket) => {
+            usersRegistered?.result[0].forEach((rowDataPacket) => {
               tableContent += `
             <tr>
               <td>${rowDataPacket.id}</td>
-              <td>${rowDataPacket.id_user}</td>
-              <td>${rowDataPacket.id_transaction}</td>
-              <td>${rowDataPacket.alert_description}</td>
+              <td>${rowDataPacket.username}</td>
+              <td>${rowDataPacket.email}</td>
+              <td>${rowDataPacket.password_hash}</td>
+              <td>${rowDataPacket.user_role}</td>
               <td>${rowDataPacket.date_registered}</td>
             </tr>
             `;
@@ -636,12 +716,12 @@
             `;
             tableContent = `
               <tr>
-                <td>No alerts registered</td>
+                <td>No accounts registered</td>
               </tr>
             `;
           }
           tbody.innerHTML = tableContent;
-          datatable = new DataTable("#alertsTable", {
+          datatable = new DataTable("#usersTable", {
             select: true,
           });
         } catch (error) {

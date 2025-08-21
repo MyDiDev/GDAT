@@ -1,10 +1,10 @@
-import express, { response } from "express";
+import express from "express";
 import cors from "cors";
 import {
   connectToDb,
   getUserId,
   getDashData,
-  addNewTransaction,
+  getParameters,
 } from "./db/connection.js";
 import { fileURLToPath } from "url";
 import path, { dirname } from "path";
@@ -14,6 +14,7 @@ import { Transactions } from "./logic/classes/transaction.js";
 import { sanitize } from "./utils/sanitizer.js";
 import { genToken, decodeToken } from "./logic/tokenizer.js";
 import valid_credit_card from "./utils/luhn.js";
+import requestIp from "request-ip";
 
 const app = express();
 let token = null;
@@ -28,6 +29,11 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use(express.urlencoded());
+let currentIp;
+app.use(requestIp.mw());
+app.use((req, res) => {
+  currentIp = req.clientIp;
+});
 
 await connectToDb();
 
@@ -62,6 +68,9 @@ app.get("/api/data", async (req, res) => {
       const transaction = new Transactions();
       const transactions = await transaction.get();
       res.json({ result: transactions });
+      break;
+    case "alerts":
+      // const alerts
       break;
     default:
       res.send("Invalid table found, try again");
@@ -133,6 +142,35 @@ app.post("/api/data/auth", async (req, res) => {
   }
 });
 
+app.post("/api/data/auth/account", async (req, res) => {
+  try {
+    const token = req.body?.token;
+    if (!token) {
+      res.json({ error: "Invalid Token" });
+      return;
+    }
+    const decode = await decodeToken(token);
+    if (decode.role != "admin" && decode.role != "user") {
+      res.json({ error: "Invalid role" });
+      return;
+    }
+
+    const uid = decode.id;
+
+    if (isNaN(uid)) {
+      res.json({ error: "Invalid user ID" });
+      return;
+    }
+
+    const account = new Account(uid);
+    const id = await account.getID();
+    res.status(200).json({ result: id });
+  } catch (error) {
+    res.json({ error: error.message });
+    return;
+  }
+});
+
 app.post("/api/data/add/user", async (req, res) => {
   const token = req.body?.token ?? null;
   if (!token) {
@@ -197,15 +235,23 @@ app.post("/api/data/add/transaction", async (req, res) => {
     return;
   }
 
-  const name = sanitize(req.body?.name);
-  const email = req.body?.email;
-  const password = sanitize(req.body?.password);
+  const accountID = Number(req.body?.id);
+  const description = sanitize(req.body?.description);
+  const amount = Number(req.body?.amount);
+  const state = sanitize(req.body?.state);
+  const type = sanitize(req.body?.type);
 
-  const user = new User(name, email, password, "user");
-  const result = await user.addUser();
+  const transaction = new Transactions(
+    description,
+    amount,
+    accountID,
+    state,
+    type
+  );
+  const result = await transaction.addTransaction();
 
   if (result) res.json({ result: result });
-  else res.json({ result: "Could not add User." });
+  else res.json({ result: "Could not add Transaction." });
 });
 
 app.post("/api/data/update/user", async (req, res) => {
@@ -954,6 +1000,26 @@ app.get("/forms/deposit", async (req, res) => {
     res.redirect("/dashboard/home");
     return;
   }
+  const accountResponse = await fetch(`${APIURL}/api/data/auth/account`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ token }),
+  });
+
+  if (!accountResponse.ok) {
+    res.redirect("/home?error=No+valid+account+found");
+    return;
+  }
+
+  const accountData = await accountResponse.json();
+  const accId = accountData.result.id;
+
+  if (!accId) {
+    res.redirect("/home?error=No+valid+account+found");
+    return;
+  }
 
   const response = await fetch(
     `${APIURL}/api/data/user/dashboard?token=${token}&periodDays=${
@@ -976,6 +1042,7 @@ app.get("/forms/deposit", async (req, res) => {
   res.render("UI/deposit", {
     token: token,
     data: data.result,
+    accountID: accId,
   });
 });
 
@@ -991,7 +1058,30 @@ app.get("/forms/withdraw", async (req, res) => {
     return res.redirect("/login?error=Session+terminated");
   }
   const role = decode.role;
-  if (role == "admin") res.redirect("/dashboard/home");
+  if (role == "admin") {
+    res.redirect("/dashboard/home");
+    return;
+  }
+  const accountResponse = await fetch(`${APIURL}/api/data/auth/account`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ token }),
+  });
+
+  if (!accountResponse.ok) {
+    res.redirect("/home?error=No+valid+account+found");
+    return;
+  }
+
+  const accountData = await accountResponse.json();
+  const accId = accountData.result.id;
+
+  if (!accId) {
+    res.redirect("/home?error=No+valid+account+found");
+    return;
+  }
 
   const response = await fetch(
     `${APIURL}/api/data/user/dashboard?token=${token}&periodDays${
@@ -1010,13 +1100,14 @@ app.get("/forms/withdraw", async (req, res) => {
   }
 
   const data = await response.json();
-
   res.render("UI/withdraw", {
     token: token,
     data: data.result,
+    accountID: accId,
   });
 });
 
+let invalidTries = 0;
 app.post("/forms/deposit/new", async (req, res) => {
   if (!token) {
     res.json({ error: "Invalid session found" });
@@ -1029,7 +1120,80 @@ app.post("/forms/deposit/new", async (req, res) => {
     return res.redirect("/login?error=Session+terminated");
   }
   const role = decode.role;
-  if (role == "admin") res.redirect("/dashboard/home");
+  if (role == "admin") {
+    res.redirect("/dashboard/home");
+    return;
+  }
+
+  const id = req.body?.id_account;
+  const description = sanitize(req.body?.description);
+  const amount = Number(req.body?.amount);
+  const cardName = sanitize(req.body?.card_name);
+  const cardNumber = req.body?.card_number;
+  const expireDate = req.body?.expire_date;
+  const code = Number(req.body?.cvc_code);
+  const email = sanitize(req.body?.email);
+
+  // if (!valid_credit_card(cardNumber)){
+  //   res.redirect("/home/deposit?error=Invalid+credit+card");
+  //   invalidTries++;
+  //   return;
+  // }
+
+  // params
+  const params = await getParameters();
+  if (amount >= params.max_transaction_amount_per_day) {
+    res.redirect(
+      `/forms/depostit?error=Only+deposits+permitted+${params.max_transaction_amount_per_day}+per+day`
+    );
+    return;
+  }
+
+  if (params.max_transactions_per_hour) {
+    res.redirect(
+      `/forms/depostit?error=Only+permitted+${params.max_transactions_per_hour}+per+hour`
+    );
+    return;
+  }
+
+  if (params.vpn_block_enabled) {
+    res.redirect(`/forms/depostit?error=No+vpns+permitted`);
+    return;
+  }
+
+  if (params.blacklisted_countries) {
+    res.redirect(
+      `/forms/depostit?error=Invalid+country+to+register+transaction`
+    );
+    return;
+  }
+
+  if (params.ip_mismatch_block && currentIp != req.clientIp) {
+    res.redirect(`/forms/depostit?error=Missmatching+IP+address`);
+    return;
+  }
+
+  if (invalidTries >= params.max_failed_card_attempts) {
+    res.redirect(`/forms/depostit?error=Too+many+tries`);
+    return;
+  }
+
+  const state = "Realized";
+  const response = await fetch(`${APIURL}/api/data/add/transaction`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ id, description, amount, state, token }),
+  });
+
+  if (
+    response.ok &&
+    (await response.json().result) != "Could not add Transaction"
+  ) {
+    res.redirect("/home");
+    return;
+  }
 });
 
 app.post("/forms/withdraw/new", async (req, res) => {
@@ -1046,26 +1210,59 @@ app.post("/forms/withdraw/new", async (req, res) => {
   const role = decode.role;
   if (role == "admin") res.redirect("/dashboard/home");
 
-  const description = sanitize(req.body?.description);
-  const amount = Number(req.body?.amount);
-  const cardName = sanitize(req.body?.card_name);
-  const cardNumber = req.body?.card_number;
-  const expireDate = req.body?.expire_date;
-  const code = Number(req.body?.cvc_code);
-  const email = sanitize(req.body?.email);
+  const params = await getParameters();
+  if (amount >= params.max_transaction_amount_per_day) {
+    res.redirect(
+      `/forms/depostit?error=Only+deposits+permitted+${params.max_transaction_amount_per_day}+per+day`
+    );
+    return;
+  }
 
-  // if (!valid_credit_card(cardNumber)){
-  //   res.redirect("/home/deposit?error=Invalid+credit+card");
-  //   return;
-  // }
+  if (params.max_transactions_per_hour) {
+    res.redirect(
+      `/forms/depostit?error=Only+permitted+${params.max_transactions_per_hour}+per+hour`
+    );
+    return;
+  }
 
+  if (params.vpn_block_enabled) {
+    res.redirect(`/forms/depostit?error=No+vpns+permitted`);
+    return;
+  }
+
+  if (params.blacklisted_countries) {
+    res.redirect(
+      `/forms/depostit?error=Invalid+country+to+register+transaction`
+    );
+    return;
+  }
+
+  if (params.ip_mismatch_block && currentIp != req.clientIp) {
+    res.redirect(`/forms/depostit?error=Missmatching+IP+address`);
+    return;
+  }
+
+  if (invalidTries >= params.max_failed_card_attempts) {
+    res.redirect(`/forms/depostit?error=Too+many+tries`);
+    return;
+  }
+
+  const state = "Realized";
   const response = await fetch(`${APIURL}/api/data/add/transaction`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ token }),
+    body: JSON.stringify({ id, description, amount, state, token }),
   });
+
+  if (
+    response.ok &&
+    (await response.json().result) != "Could not add Transaction"
+  ) {
+    res.redirect("/home");
+    return;
+  }
 });
 
 app.get("/logout", (req, res) => {

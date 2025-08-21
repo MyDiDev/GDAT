@@ -474,3 +474,17 @@ export async function getUserDashData(id, periodDays) {
     console.error(error.message);
   }
 }
+
+export async function getParameters() {
+  return new Promise(async (resolve, reject) => {
+    try{
+      if(!conn) await connectToDb();
+      conn.query("SELECT * FROM params", (err, result) => {
+        if (err) reject(err);
+        resolve(result[0]);
+      })
+    }catch(error){
+      reject(error.message);
+    }
+  })
+}
